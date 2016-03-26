@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">PFly</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Menu -->
+    <string name="menu_home">Projects</string>
+    <string name="menu_add_recipe">Add task</string>
+    <string name="menu_subscribe">Subscribe</string>
+    <string name="menu_logout">Logout</string>
+
+    <string name="logout">Logout</string>
+    <string name="loginText">Please login with your Google Account</string>
+
+</resources>
