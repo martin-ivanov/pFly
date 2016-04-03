@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">PFly</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_save">Save</string>
+
+    <!-- Menu -->
+    <string name="menu_projects">Projects</string>
+    <string name="menu_tasks">Tasks</string>
+    <string name="menu_subscribe">Subscribe</string>
+    <string name="menu_logout">Logout</string>
+
+    <string name="logout">Logout</string>
+    <string name="loginText">Please login with your Google Account</string>
+
+
+    <string-array name="tasks_array">
+        <item>task1</item>
+        <item>task2</item>
+        <item>task3</item>
+        <item>task4</item>
+        <item>task5</item>
+        <item>task6</item>
+
+    </string-array>
+
+    <!-- Hint while creating task -->
+    <string name="hint_name">Task name</string>
+    <string name="hint_description">Description</string>
+    <string name="hint_notes">Notes</string>
+    <string name="hint_desired_outcome">Desired outcome</string>
+    <string name="hint_dateCreated">Created on</string>
+    <string name="hint_dateFinished">Finished on</string>
+    <string name="hint_deadline">Deadline</string>
+
+    <string name="hint_int_importance">Internal importance</string>
+    <string name="hint_ext_importance">External Importance</string>
+    <string name="hint_closeness">Closeness</string>
+    <string name="hint_simplicity">Simplicity</string>
+    <string name="hint_clearness">Clearness</string>
+
+
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_int_importance">Internal importance</string>
+    <string name="pref_header_ext_importance">External importance</string>
+    <string name="pref_header_closeness">Closeness</string>
+    <string name="pref_header_simplicity">Simplicity</string>
+    <string name="pref_header_clearness">Clearness</string>
+
+
+    <string name="pref_range_min_value">Range minimum value</string>
+    <string name="pref_range_max_value">Range maximum value</string>
+    <string name="pref_weight">Weight</string>
+
+
+</resources>
