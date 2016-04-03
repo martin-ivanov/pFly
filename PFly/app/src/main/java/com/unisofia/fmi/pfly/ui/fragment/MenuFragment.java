@@ -24,8 +24,8 @@ public class MenuFragment extends Fragment {
 
 	public enum MenuItem {
 
-		HOME(R.string.menu_home), 
-		ADD_RECIPE(R.string.menu_add_recipe), 
+		PROJECTS(R.string.menu_projects),
+		TASKS(R.string.menu_tasks),
 		SUBSCRIBE(R.string.menu_subscribe), 
 		LOGOUT(R.string.menu_logout);
 

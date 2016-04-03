@@ -38,6 +38,7 @@
         </activity>
 
         <activity android:name="com.unisofia.fmi.pfly.ui.activity.HomeActivity" />
+        <activity android:name="com.unisofia.fmi.pfly.ui.activity.SettingsActivity" />
     </application>
 
 </manifest>

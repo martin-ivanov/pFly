@@ -6,16 +6,16 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.account.UserManager;
-import com.unisofia.fmi.pfly.ui.fragment.AddTaskFragment;
 import com.unisofia.fmi.pfly.ui.fragment.BaseMenuFragment;
 import com.unisofia.fmi.pfly.ui.fragment.ProjectsFragment;
 import com.unisofia.fmi.pfly.ui.fragment.MenuFragment;
 import com.unisofia.fmi.pfly.ui.fragment.MenuFragment.MenuListener;
-import com.unisofia.fmi.pfly.ui.fragment.SubscribeFragment;
+import com.unisofia.fmi.pfly.ui.fragment.TasksFragment;
 
 @SuppressWarnings("deprecation")
 public class HomeActivity extends BaseActivity implements MenuListener {
@@ -32,15 +32,6 @@ public class HomeActivity extends BaseActivity implements MenuListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-
         mTitle = mDrawerTitle = getTitle();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
@@ -49,23 +40,7 @@ public class HomeActivity extends BaseActivity implements MenuListener {
                 R.string.app_name, /* "open drawer" description */
                 R.string.app_name /* "close drawer" description */
         );
-//        ){
-//            public void onDrawerClosed(View view) {
-//                super.onDrawerClosed(view);
-//                getSupportActionBar().setTitle(mTitle);
-//                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-//                syncState();
-//            }
-//
-//            /** Called when a drawer has settled in a completely open state. */
-//            public void onDrawerOpened(View drawerView) {
-//                super.onDrawerOpened(drawerView);
-//                getSupportActionBar().setTitle(mDrawerTitle);
-//                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-//                syncState();
-//            }
-//        };
-//        mDrawerToggle.setDrawerIndicatorEnabled(true);
+
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
         // Set the drawer toggle as the DrawerListener
@@ -107,7 +82,15 @@ public class HomeActivity extends BaseActivity implements MenuListener {
             return true;
         }
         // Handle your other action bar items...
-        return super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivityForResult(intent, 0);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
     }
 
     @Override
@@ -120,15 +103,13 @@ public class HomeActivity extends BaseActivity implements MenuListener {
 
         BaseMenuFragment fragment = null;
         switch (item) {
-            case HOME:
+            case PROJECTS:
                 fragment = new ProjectsFragment();
                 break;
-            case ADD_RECIPE:
-                fragment = new AddTaskFragment();
+            case TASKS:
+                fragment = new TasksFragment();
                 break;
             case SUBSCRIBE:
-                fragment = new SubscribeFragment();
-                break;
             case LOGOUT:
             default:
                 onLogout();
@@ -159,5 +140,12 @@ public class HomeActivity extends BaseActivity implements MenuListener {
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_pfly, menu);
+        return true;
     }
 }

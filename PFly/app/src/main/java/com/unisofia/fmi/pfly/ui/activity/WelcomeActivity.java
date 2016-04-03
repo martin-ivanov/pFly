@@ -53,24 +53,11 @@ public class WelcomeActivity extends BaseActivity implements OnClickListener, Co
         profileFrame = (LinearLayout) findViewById(R.id.profileFrame);
         signinFrame = (LinearLayout) findViewById(R.id.signinFrame);
 
-
-
-
-//        Button loginRegButton = (Button) findViewById(R.id.button_login_reg);
-//        loginRegButton.setOnClickListener(new OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-////				onLoginReg();
-//            }
-//        });
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(Plus.API, Plus.PlusOptions.builder().build())
                 .addScope(Plus.SCOPE_PLUS_LOGIN).build();
-
-
     }
 
     @Override
