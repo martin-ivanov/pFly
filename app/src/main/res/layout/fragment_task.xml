@@ -84,116 +84,40 @@
                 android:inputType="textMultiLine" />
         </android.support.design.widget.TextInputLayout>
 
-        <TableLayout
-            android:id="@+id/tableLayout1"
-            android:layout_width="fill_parent"
+        <CheckBox
+            android:id="@+id/intImportance"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:stretchColumns="0,1">
+            android:text="@string/hint_int_importance" />
 
-            <TableRow
-                android:id="@+id/tableRow1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+        <CheckBox
+            android:id="@+id/extImportance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hint_ext_importance" />
 
-                <TextView
-                    android:id="@+id/intImportanceLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_int_importance"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+        <CheckBox
+            android:id="@+id/closeness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hint_closeness" />
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-                    android:id="@+id/intImportance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:dsb_max="15"
-                    app:dsb_min="2" />
-            </TableRow>
+        <CheckBox
+            android:id="@+id/simplicity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hint_simplicity" />
 
-            <TableRow
-                android:id="@+id/tableRow2"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+        <CheckBox
+            android:id="@+id/clearness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hint_clearness" />
 
-                <TextView
-                    android:id="@+id/extImportanceLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_ext_importance"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-                    android:id="@+id/extImportance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:dsb_max="15"
-                    app:dsb_min="2" />
-
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow3"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/closenessLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_closeness"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-                    android:id="@+id/closeness"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:dsb_max="15"
-                    app:dsb_min="2" />
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow4"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/simplicityLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_simplicity"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-                    android:id="@+id/simplicity"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:dsb_max="15"
-                    app:dsb_min="2" />
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow5"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/clearnessLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_clearness"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-                    android:id="@+id/clearness"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </TableRow>
-        </TableLayout>
+        <TextView
+            android:id="@+id/fly_score"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
 
         <android.support.design.widget.TextInputLayout
@@ -244,6 +168,120 @@
             android:id="@+id/dependOn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+
+        <TableLayout
+            android:id="@+id/rangesLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="0,1"
+            android:visibility="gone">
+
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/intImportanceLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/hint_int_importance"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                    android:id="@+id/intImportanceBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:dsb_max="15"
+                    app:dsb_min="2" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/extImportanceLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/hint_ext_importance"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                    android:id="@+id/extImportanceBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:dsb_max="15"
+                    app:dsb_min="2" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/closenessLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/hint_closeness"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                    android:id="@+id/closenessBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:dsb_max="15"
+                    app:dsb_min="2" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/simplicityLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/hint_simplicity"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                    android:id="@+id/simplicityBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:dsb_max="15"
+                    app:dsb_min="2" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/clearnessLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/hint_clearness"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                    android:id="@+id/clearnessBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </TableRow>
+        </TableLayout>
+
 
 
     </LinearLayout>

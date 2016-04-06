@@ -3,6 +3,10 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
+        android:fragment="com.unisofia.fmi.pfly.ui.activity.SettingsActivity$GeneralPreferenceFragment"
+        android:title="@string/pref_header_general" />
+
+    <header
         android:fragment="com.unisofia.fmi.pfly.ui.activity.SettingsActivity$IntImportancePreferenceFragment"
         android:title="@string/pref_header_int_importance" />
 

@@ -76,7 +76,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || ExtImportancePreferenceFragment.class.getName().equals(fragmentName)
                 || ClosenessPreferenceFragment.class.getName().equals(fragmentName)
                 || SimplicityPreferenceFragment.class.getName().equals(fragmentName)
-                || ClearnessPreferenceFragment.class.getName().equals(fragmentName);
+                || ClearnessPreferenceFragment.class.getName().equals(fragmentName)
+                || GeneralPreferenceFragment.class.getName().equals(fragmentName);
     }
 
 
@@ -92,7 +93,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
     }
-
 
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -161,6 +161,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
+    public static class GeneralPreferenceFragment extends FlyPreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_general);
+            setHasOptionsMenu(true);
+
+            Preference preference = findPreference("fly_weight_switch");
+        }
+    }
 
 
 }

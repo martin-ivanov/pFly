@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
@@ -11,14 +12,16 @@ import android.view.MenuItem;
 
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.ui.fragment.BaseMenuFragment;
 import com.unisofia.fmi.pfly.ui.fragment.ProjectsFragment;
 import com.unisofia.fmi.pfly.ui.fragment.MenuFragment;
 import com.unisofia.fmi.pfly.ui.fragment.MenuFragment.MenuListener;
+import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
 import com.unisofia.fmi.pfly.ui.fragment.TasksFragment;
 
 @SuppressWarnings("deprecation")
-public class HomeActivity extends BaseActivity implements MenuListener {
+public class HomeActivity extends BaseActivity implements MenuListener, TasksFragment.OnTaskSelectedListener {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -147,5 +150,18 @@ public class HomeActivity extends BaseActivity implements MenuListener {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_pfly, menu);
         return true;
+    }
+
+    @Override
+    public void onTaskSelected(Task task) {
+        TaskFragment taskFragment = new TaskFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("task", task);
+        taskFragment.setArguments(args);
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, taskFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

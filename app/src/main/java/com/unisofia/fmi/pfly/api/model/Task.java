@@ -2,6 +2,7 @@ package com.unisofia.fmi.pfly.api.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Random;
 
 public class Task implements Serializable {
 
@@ -21,11 +22,13 @@ public class Task implements Serializable {
     private long dependOn;
     private String notes;
     private Long projectId;
+    private int flyScore;
 
     public Task() {
         id = 4545l;
         name = "Task";
         description = "Some description";
+        flyScore = new Random().nextInt(40);
     }
 
     public static long getSerialVersionUID() {
@@ -142,6 +145,14 @@ public class Task implements Serializable {
 
     public void setProjectId(Long projectId) {
         this.projectId = projectId;
+    }
+
+    public int getFlyScore() {
+        return flyScore;
+    }
+
+    public void setFlyScore(int flyScore) {
+        this.flyScore = flyScore;
     }
 
     public enum TaskStatus {INITIALIZING, IN_PROGRESS, COMPLETE}
