@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <meta-data
         android:name="com.google.android.gms.version"
@@ -39,6 +40,14 @@
 
         <activity android:name="com.unisofia.fmi.pfly.ui.activity.HomeActivity" />
         <activity android:name="com.unisofia.fmi.pfly.ui.activity.SettingsActivity" />
+
+
+        <service android:name="com.unisofia.fmi.pfly.notification.reminder.ReminderService"
+            android:enabled="true" android:exported="false"/>
+
+
+        <provider android:authorities="ourContentProviderAuthorities"
+            android:name=".notification.reminder.RemindersContentProvider"/>
     </application>
 
 </manifest>

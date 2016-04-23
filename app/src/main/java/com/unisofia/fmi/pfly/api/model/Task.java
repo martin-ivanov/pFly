@@ -1,5 +1,7 @@
 package com.unisofia.fmi.pfly.api.model;
 
+import com.unisofia.fmi.pfly.R;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Random;
@@ -14,25 +16,42 @@ public class Task implements Serializable {
     private String description;
     private TaskStatus status;
     private Date dateFinished;
-    private String importance;
-    private String closeness;
-    private String simplicity;
+    private boolean intImportant;
+    private boolean extImportant;
+    private boolean closed;
+    private boolean simplified;
+    private boolean cleared;
     private Date taskDeadline;
     private String desiredOutcome;
     private long dependOn;
     private String notes;
     private Long projectId;
     private int flyScore;
+    private TaskAction actionTaken;
 
     public Task() {
         id = 4545l;
         name = "Task";
         description = "Some description";
         flyScore = new Random().nextInt(40);
+        intImportant = getRandomBoolean();
+        extImportant = getRandomBoolean();
+        cleared = getRandomBoolean();
+        simplified = getRandomBoolean();
+        closed = getRandomBoolean();
+        actionTaken = TaskAction.CLARIFY;
     }
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
+    }
+
+    public Date getDateFinished() {
+        return dateFinished;
+    }
+
+    public void setDateFinished(Date dateFinished) {
+        this.dateFinished = dateFinished;
     }
 
     public Long getId() {
@@ -75,36 +94,44 @@ public class Task implements Serializable {
         this.status = status;
     }
 
-    public Date getDateFinished() {
-        return dateFinished;
+    public boolean isIntImportant() {
+        return intImportant;
     }
 
-    public void setDateFinished(Date dateFinished) {
-        this.dateFinished = dateFinished;
+    public void setIntImportant(boolean intImportant) {
+        this.intImportant = intImportant;
     }
 
-    public String getImportance() {
-        return importance;
+    public boolean isExtImportant() {
+        return extImportant;
     }
 
-    public void setImportance(String importance) {
-        this.importance = importance;
+    public void setExtImportant(boolean extImportant) {
+        this.extImportant = extImportant;
     }
 
-    public String getCloseness() {
-        return closeness;
+    public boolean isClosed() {
+        return closed;
     }
 
-    public void setCloseness(String closeness) {
-        this.closeness = closeness;
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 
-    public String getSimplicity() {
-        return simplicity;
+    public boolean isSimplified() {
+        return simplified;
     }
 
-    public void setSimplicity(String simplicity) {
-        this.simplicity = simplicity;
+    public void setSimplified(boolean simplified) {
+        this.simplified = simplified;
+    }
+
+    public boolean isCleared() {
+        return cleared;
+    }
+
+    public void setCleared(boolean cleared) {
+        this.cleared = cleared;
     }
 
     public Date getTaskDeadline() {
@@ -157,6 +184,43 @@ public class Task implements Serializable {
 
     public enum TaskStatus {INITIALIZING, IN_PROGRESS, COMPLETE}
 
-    ;
+    public boolean getRandomBoolean(){
+        return Math.random() < 0.5;
+    }
 
+    public TaskAction getActionTaken() {
+        return actionTaken;
+    }
+
+    public void setActionTaken(TaskAction actionTaken) {
+        this.actionTaken = actionTaken;
+    }
+
+    public static enum TaskAction {
+        TRASH_NOTIFY("Trash & Notify", R.color.taskDarkBlue),
+        TRANSFER_NOTIFY("Transfer & Notify", R.color.taskLightBlue),
+        DELEGATE_FOLLOW_UP("Delegate & follow-up", R.color.taskDarkGreen),
+        SCHEDULE_DEFER("Schedule & Defer", R.color.taskLightGreen),
+        CLARIFY("Clarify", R.color.taskOrange),
+        SIMPLIFY("Simplify", R.color.taskOrange),
+        EXECUTE("Execute", R.color.taskRed);
+
+        private final String text;
+        private final int color;
+
+        private TaskAction(final String text, int color){
+            this.text = text;
+            this.color = color;
+        }
+
+        @Override
+        public String toString(){
+            return text;
+        }
+
+        public int getColor() {
+            return color;
+        }
+    }
 }
+

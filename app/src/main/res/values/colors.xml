@@ -4,4 +4,14 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorTitleText">#ffffffff</color>
+
+    <color name="taskDarkBlue">#0033cc</color>
+    <color name="taskLightBlue">#00b0f0</color>
+    <color name="taskDarkGreen">#00b050</color>
+    <color name="taskLightGreen">#92d050</color>
+    <color name="taskYellow">#ffc000</color>
+    <color name="taskOrange">#ff6600</color>
+    <color name="taskRed">#ff0000</color>
+
+
 </resources>

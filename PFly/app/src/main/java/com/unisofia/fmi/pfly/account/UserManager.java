@@ -6,7 +6,7 @@ import android.content.SharedPreferences.Editor;
 
 import com.unisofia.fmi.pfly.PFlyApp;
 import com.unisofia.fmi.pfly.api.model.Profile;
-import com.unisofia.fmi.pfly.gcm.util.GcmConstants;
+import com.unisofia.fmi.pfly.notification.gcm.util.GcmConstants;
 
 public class UserManager {
 

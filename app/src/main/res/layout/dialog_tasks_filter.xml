@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <CheckBox
+        android:id="@+id/intImportanceFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/checkbox_padding"
+        android:layout_marginTop="@dimen/checkbox_margin"
+        android:layout_marginLeft="@dimen/checkbox_margin"
+        android:text="@string/hint_int_importance" />
+
+    <CheckBox
+        android:id="@+id/extImportanceFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/checkbox_padding"
+        android:layout_marginLeft="@dimen/checkbox_margin"
+        android:text="@string/hint_ext_importance" />
+
+    <CheckBox
+        android:id="@+id/closenessFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/checkbox_padding"
+        android:layout_marginLeft="@dimen/checkbox_margin"
+        android:text="@string/hint_closeness" />
+
+    <CheckBox
+        android:id="@+id/simplicityFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/checkbox_padding"
+        android:layout_marginLeft="@dimen/checkbox_margin"
+        android:text="@string/hint_simplicity" />
+
+    <CheckBox
+        android:id="@+id/clearnessFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/checkbox_padding"
+        android:layout_marginLeft="@dimen/checkbox_margin"
+        android:text="@string/hint_clearness" />
+
+
+    <Button
+        android:id="@+id/dialogButtonOK"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ok"
+        android:layout_margin="@dimen/default_margin"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/image"
+        />
+
+</LinearLayout>

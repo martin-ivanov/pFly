@@ -1,4 +1,4 @@
-package com.unisofia.fmi.pfly.gcm;
+package com.unisofia.fmi.pfly.notification.gcm;
 
 import android.app.Activity;
 import android.content.ComponentName;

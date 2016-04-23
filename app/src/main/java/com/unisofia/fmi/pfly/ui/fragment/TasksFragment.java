@@ -1,13 +1,12 @@
 package com.unisofia.fmi.pfly.ui.fragment;
 
-import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.SparseBooleanArray;
+import android.util.StringBuilderPrinter;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,18 +17,20 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.api.model.Task;
-import com.unisofia.fmi.pfly.ui.activity.TasksActivity;
 import com.unisofia.fmi.pfly.ui.adapter.TasksAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class TasksFragment extends BaseMenuFragment {
 
@@ -41,6 +42,8 @@ public class TasksFragment extends BaseMenuFragment {
 
     CoordinatorLayout rootLayout;
     FloatingActionButton fabBtn;
+    Dialog filterDialog;
+    List<CheckBox> listFilterCriteria;
 
     @Override
     public void onAttach(Context context) {
@@ -60,11 +63,14 @@ public class TasksFragment extends BaseMenuFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setHasOptionsMenu(true);
-
+        filterDialog = new Dialog(getActivity());
+        filterDialog.setContentView(R.layout.dialog_tasks_filter);
+        filterDialog.setTitle("Filter by:");
+        listFilterCriteria = initFilterDialog(filterDialog);
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_pfly_sort_task, menu);
+        inflater.inflate(R.menu.menu_pfly_tasks_options, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -86,23 +92,62 @@ public class TasksFragment extends BaseMenuFragment {
                 });
                 mTasksAdapter.notifyDataSetChanged();
                 return true;
+            case R.id.filter_tasks:
+                Toast.makeText(getActivity(), "Filter dialog....", Toast.LENGTH_LONG).show();
+
+                Button dialogButton = (Button) filterDialog.findViewById(R.id.dialogButtonOK);
+                dialogButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        filterDialog.dismiss();
+                        mTasksAdapter.getFilter()
+                                .filter(setCriteria(listFilterCriteria));
+                    }
+                });
+                filterDialog.show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    private String setCriteria(List<CheckBox> listCheckBox){
+        StringBuilder criteria = new StringBuilder();
+        for (CheckBox checkBox : listCheckBox){
+            if (checkBox.isChecked()){
+                criteria.append(checkBox.getId())
+                        .append(",");
+            }
+        }
+        return criteria.toString();
+    }
+
+    private List<CheckBox> initFilterDialog(Dialog dialog){
+        List<CheckBox> listCheckBox = new ArrayList<>();
+        CheckBox intImportanceFilter = (CheckBox) dialog.findViewById(R.id.intImportanceFilter);
+        listCheckBox.add(intImportanceFilter);
+        CheckBox extImportanceFilter = (CheckBox) dialog.findViewById(R.id.extImportanceFilter);
+        listCheckBox.add(extImportanceFilter);
+        CheckBox simplicityFilter = (CheckBox) dialog.findViewById(R.id.simplicityFilter);
+        listCheckBox.add(simplicityFilter);
+        CheckBox closenessFilter = (CheckBox) dialog.findViewById(R.id.closenessFilter);
+        listCheckBox.add(closenessFilter);
+        CheckBox clearnessFilter = (CheckBox) dialog.findViewById(R.id.clearnessFilter);
+        listCheckBox.add(clearnessFilter);
+        return listCheckBox;
+    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
 //		TODO get from server
-        tasksList = new ArrayList<Task>();
+        tasksList = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             tasksList.add(new Task());
         }
 
-        mTasksAdapter = new TasksAdapter(tasksList);
+        mTasksAdapter = new TasksAdapter(tasksList, getActivity());
         mTasksListView = (ListView) view
                 .findViewById(R.id.listview_tasks);
         mTasksListView.setAdapter(mTasksAdapter);
@@ -116,17 +161,13 @@ public class TasksFragment extends BaseMenuFragment {
         });
 
         mTasksListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        // Capture ListView item click
         mTasksListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
 
             @Override
             public void onItemCheckedStateChanged(ActionMode mode,
                                                   int position, long id, boolean checked) {
-                // Capture total checked items
                 final int checkedCount = mTasksListView.getCheckedItemCount();
-                // Set the CAB title according to total checked items
                 mode.setTitle(checkedCount + " selected");
-                // Calls toggleSelection method from ListViewAdapter Class
                 mTasksAdapter.toggleSelection(position);
             }
 
@@ -134,19 +175,15 @@ public class TasksFragment extends BaseMenuFragment {
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.delete_task:
-                        // Calls getSelectedIds method from ListViewAdapter Class
                         SparseBooleanArray selected = mTasksAdapter
                                 .getSelectedIds();
-                        // Captures all selected ids with a loop
                         for (int i = (selected.size() - 1); i >= 0; i--) {
                             if (selected.valueAt(i)) {
                                 Task selectedItem = mTasksAdapter
                                         .getItem(selected.keyAt(i));
-                                // Remove selected items following the ids
                                 mTasksAdapter.remove(selectedItem);
                             }
                         }
-                        // Close CAB
                         mode.finish();
                         return true;
                     default:
@@ -162,13 +199,11 @@ public class TasksFragment extends BaseMenuFragment {
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-                // TODO Auto-generated method stub
                 mTasksAdapter.removeSelection();
             }
 
             @Override
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                // TODO Auto-generated method stub
                 return false;
             }
         });

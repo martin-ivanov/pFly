@@ -37,7 +37,7 @@ public class TasksActivity extends BaseActivity {
         }
 
         mTasksListView = (ListView) findViewById(R.id.listview_tasks);
-        mTasksAdapter = new TasksAdapter(tasks);
+        mTasksAdapter = new TasksAdapter(tasks, this);
         mTasksListView.setAdapter(mTasksAdapter);
         mTasksListView.setOnItemClickListener(new OnItemClickListener() {
 

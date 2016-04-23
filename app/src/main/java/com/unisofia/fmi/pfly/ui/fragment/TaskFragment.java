@@ -1,20 +1,19 @@
 package com.unisofia.fmi.pfly.ui.fragment;
 
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -26,9 +25,11 @@ import com.unisofia.fmi.pfly.api.model.Task;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
+import java.util.Collections;
+import java.util.Comparator;
+
+import static com.unisofia.fmi.pfly.api.model.Task.TaskAction;
 
 public class TaskFragment extends BaseMenuFragment {
     private EditText name;
@@ -56,6 +57,8 @@ public class TaskFragment extends BaseMenuFragment {
     private Task loadedTask = null;
     private Calendar calendar = Calendar.getInstance();
 
+    private Spinner actionSpinner;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -72,6 +75,36 @@ public class TaskFragment extends BaseMenuFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_pfly_save_task, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.save_task:
+
+                return true;
+            case R.id.reminder_task:
+//                ReminderFragment reminderFragment = new ReminderFragment();
+//                Bundle args = new Bundle();
+//                args.putSerializable("task", task);
+//                taskFragment.setArguments(args);
+                ReminderFragment reminderFragment = new ReminderFragment();
+                Bundle args = new Bundle();
+                args.putString("taskName", name.getText().toString());
+                args.putString("taskDeadline", deadline.getText().toString());
+                reminderFragment.setArguments(args);
+                reminderFragment.show(getActivity().getSupportFragmentManager(), "ReminderDialog");
+//                reminderFragment.setContentView(R.layout.dialog_tasks_filter);
+//                reminderFragment.setTitle("Filter by:");
+
+//                getActivity().getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.content_frame, reminderFragment)
+//                        .addToBackStack(null)
+//                        .commit();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -117,9 +150,9 @@ public class TaskFragment extends BaseMenuFragment {
             rangesTable = (TableLayout) view.findViewById(R.id.rangesLayout);
             rangesTable.setVisibility(View.VISIBLE);
         }
-        deadline = setDatePicker(view, R.id.deadline);
-        dateCreated = setDatePicker(view, R.id.dateCreated);
-        dateFinished = setDatePicker(view, R.id.dateFinished);
+        deadline = DatePickerFragment.setDatePicker(getActivity(), view, R.id.deadline);
+        dateCreated = DatePickerFragment.setDatePicker(getActivity(),view, R.id.dateCreated);
+        dateFinished = DatePickerFragment.setDatePicker(getActivity(),view, R.id.dateFinished);
 
 
         spinner = (Spinner) view.findViewById(R.id.dependOn);
@@ -128,43 +161,20 @@ public class TaskFragment extends BaseMenuFragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
+        actionSpinner = (Spinner) view.findViewById(R.id.actionSpinner);
+        actionSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line,
+                TaskAction.values()));
 
-        loadedTask = (Task) this.getArguments().getSerializable("task");
-        if (loadedTask != null) {
-            Toast.makeText(getActivity(), "task loaded", Toast.LENGTH_LONG).show();
-            setTaskValues();
-        }
+        Bundle args = this.getArguments();
+        if (args != null) {
+            loadedTask = (Task) args.getSerializable("task");
+            if (loadedTask != null) {
+                Toast.makeText(getActivity(), "task loaded", Toast.LENGTH_LONG).show();
+                setTaskValues();
+            }
+            }
     }
 
-
-    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current date as the default date in the picker
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-
-            // Create a new instance of DatePickerDialog and return it
-            return new DatePickerDialog(getActivity(), this, year, month, day);
-        }
-
-        @Override
-        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-
-        }
-    }
-
-    private void updateLabel(EditText dateEditText, int year, int month, int day) {
-        Log.d("Martin", "onDateSet");
-        Calendar c = Calendar.getInstance();
-        c.set(year, month, day);
-        String dateFormat = "MM/dd/yy"; //In which you need put here
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
-        dateEditText.setText(sdf.format(calendar.getTime()));
-    }
 
     private DiscreteSeekBar setDiscreteBar(View view, int barId, String minPref, String maxPref) {
         DiscreteSeekBar bar = (DiscreteSeekBar) view.findViewById(barId);
@@ -189,24 +199,7 @@ public class TaskFragment extends BaseMenuFragment {
         return bar;
     }
 
-    private EditText setDatePicker(View view, int editTextId) {
-        final EditText editTextDate = (EditText) view.findViewById(editTextId);
-        editTextDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    DialogFragment datePickerFragment = new DatePickerFragment() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int month, int day) {
-                            updateLabel(editTextDate, year, month, day);
-                        }
-                    };
-                    datePickerFragment.show(getActivity().getFragmentManager(), "datePicker");
-                }
-            }
-        });
-        return editTextDate;
-    }
+
 
     private SharedPreferences setPrefs() {
         PreferenceManager.setDefaultValues(getActivity(), R.xml.pref_int_importance, false);
@@ -250,6 +243,30 @@ public class TaskFragment extends BaseMenuFragment {
     }
 
 
+    private TaskAction recommendAction(){
+        if (!intImportance.isChecked() && !extImportance.isChecked()){
+            return TaskAction.TRASH_NOTIFY;
+        }
+        if (!intImportance.isChecked()) {
+            return TaskAction.TRANSFER_NOTIFY;
+        }
+        if (!simplicity.isChecked() && !closeness.isChecked()){
+            return TaskAction.DELEGATE_FOLLOW_UP;
+        }
+        if (simplicity.isChecked() && !closeness.isChecked()){
+            return TaskAction.SCHEDULE_DEFER;
+        }
+        if (!clearness.isChecked()){
+            return TaskAction.CLARIFY;
+        }
+        if (!simplicity.isChecked() && closeness.isChecked()){
+            return TaskAction.SIMPLIFY;
+        }
+
+        return TaskAction.EXECUTE;
+
+    }
+
     private void setTaskValues() {
         name.setText(loadedTask.getName());
         description.setText(loadedTask.getDescription());
@@ -260,6 +277,9 @@ public class TaskFragment extends BaseMenuFragment {
         @Override
         public void onClick(View v) {
             calculateFlyScore();
+            TextView recommendedAction = (TextView) fragmentView.findViewById(R.id.recommended_action);
+            recommendedAction.setText(recommendAction().toString());
         }
     }
+
 }

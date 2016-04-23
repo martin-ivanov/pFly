@@ -1,5 +1,6 @@
 package com.unisofia.fmi.pfly.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.account.UserManager;
 import com.unisofia.fmi.pfly.api.model.Task;
+import com.unisofia.fmi.pfly.notification.reminder.ReminderService;
 import com.unisofia.fmi.pfly.ui.fragment.BaseMenuFragment;
 import com.unisofia.fmi.pfly.ui.fragment.ProjectsFragment;
 import com.unisofia.fmi.pfly.ui.fragment.MenuFragment;
@@ -59,9 +61,14 @@ public class HomeActivity extends BaseActivity implements MenuListener, TasksFra
                 .replace(R.id.content_menu, mMenuFragment).commit();
 
         // Set up initial fragment
-        BaseMenuFragment fragment = new ProjectsFragment();
+        BaseMenuFragment fragment = new TasksFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_frame, fragment).commit();
+
+        Intent serviceIntent = new Intent();
+//        serviceIntent.setAction("com.unisofia.fmi.pfly.notification.reminder.ReminderService");
+        startService(new Intent(getApplicationContext(), ReminderService.class));
+
     }
 
     @Override

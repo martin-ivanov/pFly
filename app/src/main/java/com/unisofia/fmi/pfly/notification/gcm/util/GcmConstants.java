@@ -1,4 +1,4 @@
-package com.unisofia.fmi.pfly.gcm.util;
+package com.unisofia.fmi.pfly.notification.gcm.util;
 
 public class GcmConstants {
 

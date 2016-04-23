@@ -18,8 +18,9 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
 
-public class WelcomeActivity extends BaseActivity implements OnClickListener, ConnectionCallbacks,
+public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks,
         OnConnectionFailedListener {
 
     private static final int RC_SIGN_IN = 0;
@@ -27,6 +28,7 @@ public class WelcomeActivity extends BaseActivity implements OnClickListener, Co
     private GoogleApiClient mGoogleApiClient;
     private boolean mIntentInProgress;
     private boolean signedInUser;
+    private boolean mSignInClicked;
     private ConnectionResult mConnectionResult;
     private SignInButton signinButton;
     private TextView username, emailLabel;
@@ -47,7 +49,13 @@ public class WelcomeActivity extends BaseActivity implements OnClickListener, Co
         setContentView(R.layout.activity_welcome);
 
         signinButton = (SignInButton) findViewById(R.id.signin);
-        signinButton.setOnClickListener(this);
+        signinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                googlePlusLogin();
+            }
+        });
+
         username = (TextView) findViewById(R.id.username);
         emailLabel = (TextView) findViewById(R.id.email);
         profileFrame = (LinearLayout) findViewById(R.id.profileFrame);
@@ -67,6 +75,14 @@ public class WelcomeActivity extends BaseActivity implements OnClickListener, Co
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
     public void onConnected(Bundle bundle) {
         signedInUser = false;
         Toast.makeText(this, "Connected", Toast.LENGTH_LONG).show();
@@ -76,20 +92,28 @@ public class WelcomeActivity extends BaseActivity implements OnClickListener, Co
         startActivity(intent);
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int responseCode,
+                                    Intent intent) {
+        if (requestCode == RC_SIGN_IN) {
+            if (responseCode != RESULT_OK) {
+                mSignInClicked = false;
+            }
+
+            mIntentInProgress = false;
+
+            if (!mGoogleApiClient.isConnecting()) {
+                mGoogleApiClient.connect();
+            }
+        }
+    }
+
     @Override
     public void onConnectionSuspended(int i) {
         mGoogleApiClient.connect();
         updateProfile(false);
 
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.signin:
-                googlePlusLogin();
-                break;
-        }
     }
 
     @Override
@@ -111,9 +135,11 @@ public class WelcomeActivity extends BaseActivity implements OnClickListener, Co
 
     private void googlePlusLogin() {
         if (!mGoogleApiClient.isConnecting()) {
-            signedInUser = true;
+            mSignInClicked = true;
             resolveSignInError();
         }
+
+
     }
 
     private void updateProfile(boolean isSignedIn) {

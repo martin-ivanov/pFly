@@ -39,7 +39,7 @@ public class ProjectsAdapter extends BaseAdapter {
 		ViewHolder holder;
 		if (convertView == null) {
 			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-			convertView = inflater.inflate(R.layout.list_item_details, parent,
+			convertView = inflater.inflate(R.layout.list_item_project, parent,
 					false);
 
 			holder = new ViewHolder();
