@@ -1,7 +1,5 @@
 package com.unisofia.fmi.pfly.ui.fragment;
 
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -11,8 +9,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -26,8 +24,6 @@ import com.unisofia.fmi.pfly.api.model.Task;
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 
 import static com.unisofia.fmi.pfly.api.model.Task.TaskAction;
 
@@ -35,10 +31,13 @@ public class TaskFragment extends BaseMenuFragment {
     private EditText name;
     private EditText description;
 
-    private Spinner spinner;
+    private Spinner dependentTask;
+    private Spinner assignedUser;
+    private Spinner project;
     private EditText deadline;
     private EditText dateCreated;
     private EditText dateFinished;
+    private EditText lastResponsibleMoment;
     private CheckBox simplicity;
     private DiscreteSeekBar simplicityBar;
     private CheckBox intImportance;
@@ -55,7 +54,7 @@ public class TaskFragment extends BaseMenuFragment {
     private TableLayout rangesTable;
 
     private Task loadedTask = null;
-    private Calendar calendar = Calendar.getInstance();
+//    private Calendar calendar = Calendar.getInstance();
 
     private Spinner actionSpinner;
 
@@ -84,23 +83,12 @@ public class TaskFragment extends BaseMenuFragment {
 
                 return true;
             case R.id.reminder_task:
-//                ReminderFragment reminderFragment = new ReminderFragment();
-//                Bundle args = new Bundle();
-//                args.putSerializable("task", task);
-//                taskFragment.setArguments(args);
                 ReminderFragment reminderFragment = new ReminderFragment();
                 Bundle args = new Bundle();
                 args.putString("taskName", name.getText().toString());
                 args.putString("taskDeadline", deadline.getText().toString());
                 reminderFragment.setArguments(args);
                 reminderFragment.show(getActivity().getSupportFragmentManager(), "ReminderDialog");
-//                reminderFragment.setContentView(R.layout.dialog_tasks_filter);
-//                reminderFragment.setTitle("Filter by:");
-
-//                getActivity().getSupportFragmentManager().beginTransaction()
-//                        .replace(R.id.content_frame, reminderFragment)
-//                        .addToBackStack(null)
-//                        .commit();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -117,53 +105,38 @@ public class TaskFragment extends BaseMenuFragment {
         name = (EditText) view.findViewById(R.id.name);
         description = (EditText) view.findViewById(R.id.description);
 
-        intImportance = (CheckBox) view.findViewById(R.id.intImportance);
-        intImportance.setOnClickListener(new CheckBoxListener());
-
-        extImportance = (CheckBox) view.findViewById(R.id.extImportance);
-        extImportance.setOnClickListener(new CheckBoxListener());
-
-        simplicity = (CheckBox) view.findViewById(R.id.simplicity);
-        simplicity.setOnClickListener(new CheckBoxListener());
-
-        closeness = (CheckBox) view.findViewById(R.id.closeness);
-        closeness.setOnClickListener(new CheckBoxListener());
-
-        clearness = (CheckBox) view.findViewById(R.id.clearness);
-        clearness.setOnClickListener(new CheckBoxListener());
-
         isRangeEnabled = prefs.getBoolean("fly_weight_switch", true);
+        setFlyCharacteristics();
 
-        simplicityBar = setDiscreteBar(view, R.id.simplicityBar, "simplicityMinPref",
-                "simplicityMaxPref");
-        closenessBar = setDiscreteBar(view, R.id.closenessBar, "closenessMinPref",
-                "closenessMaxPref");
-        intImportanceBar = setDiscreteBar(view, R.id.intImportanceBar, "intImportanceMinPref",
-                "intImportanceMaxPref");
-        extImportanceBar = setDiscreteBar(view, R.id.extImportanceBar, "extImportanceMinPref",
-                "extImportanceMaxPref");
+        setDatePickers();
 
-        clearnessBar = setDiscreteBar(view, R.id.clearnessBar, "clearnessMinPref",
-                "clearnessMaxPref");
-
-        if (isRangeEnabled) {
-            rangesTable = (TableLayout) view.findViewById(R.id.rangesLayout);
-            rangesTable.setVisibility(View.VISIBLE);
-        }
-        deadline = DatePickerFragment.setDatePicker(getActivity(), view, R.id.deadline);
-        dateCreated = DatePickerFragment.setDatePicker(getActivity(),view, R.id.dateCreated);
-        dateFinished = DatePickerFragment.setDatePicker(getActivity(),view, R.id.dateFinished);
+        dependentTask = setSpinner(R.id.dependOn, R.array.tasks_array);
+        assignedUser = setSpinner(R.id.assignedUser, R.array.users_array);
+        project = setSpinner(R.id.project, R.array.projects_array);
 
 
-        spinner = (Spinner) view.findViewById(R.id.dependOn);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.tasks_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
 
         actionSpinner = (Spinner) view.findViewById(R.id.actionSpinner);
         actionSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line,
                 TaskAction.values()));
+
+        actionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                assignedUser.setVisibility(View.GONE);
+                lastResponsibleMoment.setVisibility(View.GONE);
+
+                if (position == 1 || position == 2) {
+                    assignedUser.setVisibility(View.VISIBLE);
+                } else if (position == 3){
+                    lastResponsibleMoment.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
 
         Bundle args = this.getArguments();
         if (args != null) {
@@ -172,9 +145,24 @@ public class TaskFragment extends BaseMenuFragment {
                 Toast.makeText(getActivity(), "task loaded", Toast.LENGTH_LONG).show();
                 setTaskValues();
             }
-            }
+        }
     }
 
+    private Spinner setSpinner(int spinnerId, int arrayId){
+        Spinner spinner = (Spinner) fragmentView.findViewById(spinnerId);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+                arrayId, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        spinner.setAdapter(adapter);
+        return spinner;
+    }
+
+    private void setDatePickers() {
+        deadline = DatePickerFragment.setDatePicker(getActivity(), fragmentView, R.id.deadline);
+        dateCreated = DatePickerFragment.setDatePicker(getActivity(), fragmentView, R.id.dateCreated);
+        dateFinished = DatePickerFragment.setDatePicker(getActivity(), fragmentView, R.id.dateFinished);
+        lastResponsibleMoment = DatePickerFragment.setDatePicker(getActivity(), fragmentView, R.id.lastResponsibleMoment);
+    }
 
     private DiscreteSeekBar setDiscreteBar(View view, int barId, String minPref, String maxPref) {
         DiscreteSeekBar bar = (DiscreteSeekBar) view.findViewById(barId);
@@ -199,7 +187,39 @@ public class TaskFragment extends BaseMenuFragment {
         return bar;
     }
 
+    private void setFlyCharacteristics() {
+        intImportance = (CheckBox) fragmentView.findViewById(R.id.intImportance);
+        intImportance.setOnClickListener(new CheckBoxListener());
 
+        extImportance = (CheckBox) fragmentView.findViewById(R.id.extImportance);
+        extImportance.setOnClickListener(new CheckBoxListener());
+
+        simplicity = (CheckBox) fragmentView.findViewById(R.id.simplicity);
+        simplicity.setOnClickListener(new CheckBoxListener());
+
+        closeness = (CheckBox) fragmentView.findViewById(R.id.closeness);
+        closeness.setOnClickListener(new CheckBoxListener());
+
+        clearness = (CheckBox) fragmentView.findViewById(R.id.clearness);
+        clearness.setOnClickListener(new CheckBoxListener());
+
+        simplicityBar = setDiscreteBar(fragmentView, R.id.simplicityBar, "simplicityMinPref",
+                "simplicityMaxPref");
+        closenessBar = setDiscreteBar(fragmentView, R.id.closenessBar, "closenessMinPref",
+                "closenessMaxPref");
+        intImportanceBar = setDiscreteBar(fragmentView, R.id.intImportanceBar, "intImportanceMinPref",
+                "intImportanceMaxPref");
+        extImportanceBar = setDiscreteBar(fragmentView, R.id.extImportanceBar, "extImportanceMinPref",
+                "extImportanceMaxPref");
+
+        clearnessBar = setDiscreteBar(fragmentView, R.id.clearnessBar, "clearnessMinPref",
+                "clearnessMaxPref");
+
+        if (isRangeEnabled) {
+            rangesTable = (TableLayout) fragmentView.findViewById(R.id.rangesLayout);
+            rangesTable.setVisibility(View.VISIBLE);
+        }
+    }
 
     private SharedPreferences setPrefs() {
         PreferenceManager.setDefaultValues(getActivity(), R.xml.pref_int_importance, false);
@@ -243,23 +263,23 @@ public class TaskFragment extends BaseMenuFragment {
     }
 
 
-    private TaskAction recommendAction(){
-        if (!intImportance.isChecked() && !extImportance.isChecked()){
+    private TaskAction recommendAction() {
+        if (!intImportance.isChecked() && !extImportance.isChecked()) {
             return TaskAction.TRASH_NOTIFY;
         }
         if (!intImportance.isChecked()) {
             return TaskAction.TRANSFER_NOTIFY;
         }
-        if (!simplicity.isChecked() && !closeness.isChecked()){
+        if (!simplicity.isChecked() && !closeness.isChecked()) {
             return TaskAction.DELEGATE_FOLLOW_UP;
         }
-        if (simplicity.isChecked() && !closeness.isChecked()){
+        if (simplicity.isChecked() && !closeness.isChecked()) {
             return TaskAction.SCHEDULE_DEFER;
         }
-        if (!clearness.isChecked()){
+        if (!clearness.isChecked()) {
             return TaskAction.CLARIFY;
         }
-        if (!simplicity.isChecked() && closeness.isChecked()){
+        if (!simplicity.isChecked() && closeness.isChecked()) {
             return TaskAction.SIMPLIFY;
         }
 

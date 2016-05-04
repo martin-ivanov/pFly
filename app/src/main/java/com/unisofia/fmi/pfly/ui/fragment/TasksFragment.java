@@ -2,7 +2,9 @@ package com.unisofia.fmi.pfly.ui.fragment;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.util.SparseBooleanArray;
@@ -90,6 +92,12 @@ public class TasksFragment extends BaseMenuFragment {
                         return lhs.getFlyScore() - rhs.getFlyScore();
                     }
                 });
+
+                SharedPreferences prefs  = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                int limit = prefs.getInt("listLimitPref", 10);
+
+                tasksList = tasksList.subList(0, limit);
+
                 mTasksAdapter.notifyDataSetChanged();
                 return true;
             case R.id.filter_tasks:

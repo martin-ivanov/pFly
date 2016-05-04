@@ -76,11 +76,11 @@ public class ReminderFragment extends DialogFragment implements android.support.
         mReminderName = (EditText) view.findViewById(R.id.reminderName);
         mReminderDate = DatePickerFragment.setDatePicker(getActivity(), view, R.id.reminderDate);
 
-        if (taskName !=null && !"".equals(taskName)){
+        if (taskName != null && !"".equals(taskName)) {
             mReminderName.setText(taskName);
         }
 
-        if (taskDeadline !=null && !"".equals(taskDeadline)){
+        if (taskDeadline != null && !"".equals(taskDeadline)) {
             mReminderDate.setText(taskDeadline);
         }
 
@@ -88,8 +88,16 @@ public class ReminderFragment extends DialogFragment implements android.support.
         createReminderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createReminder(mReminderName.getText().toString(), "", mReminderDate.getText().toString());
-                dismiss();
+                String reminderName = mReminderName.getText().toString();
+                String reminderDate = mReminderDate.getText().toString();
+                if (reminderName.trim().equals("")) {
+                    mReminderName.setError("Reminder name is required");
+                } else if (reminderDate.trim().equals("")) {
+                    mReminderDate.setError("Reminder date is required");
+                } else {
+                    createReminder(reminderName, "", reminderDate);
+                    dismiss();
+                }
             }
         });
         cancelButton = (Button) view.findViewById(R.id.cancel_button);
@@ -109,7 +117,6 @@ public class ReminderFragment extends DialogFragment implements android.support.
 
         }
     }
-
 
 
     @Override
@@ -270,13 +277,13 @@ public class ReminderFragment extends DialogFragment implements android.support.
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data!=null && data.moveToFirst()) {
+        if (data != null && data.moveToFirst()) {
             mReminderName.setText(
                     data.getString(
                             data.getColumnIndexOrThrow(RemindersDbHelper.KEY_TITLE)));
             mReminderDate.setText(
                     data.getString(
-                        data.getColumnIndexOrThrow(RemindersDbHelper.KEY_DATE_TIME)));
+                            data.getColumnIndexOrThrow(RemindersDbHelper.KEY_DATE_TIME)));
         }
     }
 

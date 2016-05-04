@@ -46,7 +46,7 @@ public class ReminderService extends WakeReminderIntentService {
                 .setContentIntent(pendingIntent)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setAutoCancel(true)
-                .setSmallIcon(R.drawable.ic_launcher);
+                .setSmallIcon(R.drawable.pfly_logo);
         Notification notification = builder.build();
 
         notificationManager.notify(1, notification);

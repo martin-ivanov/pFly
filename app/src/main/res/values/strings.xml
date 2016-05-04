@@ -32,6 +32,24 @@
     </string-array>
 
 
+    <string-array name="users_array">
+        <item>user1</item>
+        <item>user2</item>
+        <item>user3</item>
+        <item>user4</item>
+        <item>user5</item>
+        <item>user6</item>
+    </string-array>
+
+    <string-array name="projects_array">
+        <item>project1</item>
+        <item>project2</item>
+        <item>project3</item>
+        <item>project4</item>
+        <item>project5</item>
+        <item>project6</item>
+    </string-array>
+
     <!-- Hint while creating task -->
     <string name="hint_name">Task name</string>
     <string name="hint_description">Description</string>
@@ -39,6 +57,7 @@
     <string name="hint_desired_outcome">Desired outcome</string>
     <string name="hint_dateCreated">Created on</string>
     <string name="hint_dateFinished">Finished on</string>
+    <string name="hint_lastResponsibleMoment">Last responsible moment</string>
     <string name="hint_deadline">Deadline</string>
     <string name="hint_recommended_action">Recommended action</string>
     <string name="hint_reminder_date">Reminder date</string>
@@ -67,6 +86,8 @@
     <string name="pref_range_min_value">Range minimum value</string>
     <string name="pref_range_max_value">Range maximum value</string>
     <string name="pref_weight">Weight</string>
+
+    <string name="pref_list_limit">Range minimum value</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="reminder_date">Reminder date</string>

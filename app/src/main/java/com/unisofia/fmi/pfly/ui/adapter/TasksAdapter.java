@@ -162,6 +162,7 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
                 }
                 List<Task> taskList = new ArrayList<>();
                 taskList.addAll(filtered);
+
                 results.count = taskList.size();
                 results.values = taskList;
             } else
