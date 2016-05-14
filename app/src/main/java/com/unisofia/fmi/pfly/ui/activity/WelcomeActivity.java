@@ -70,12 +70,13 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
         emailLabel = (TextView) findViewById(R.id.email);
         profileFrame = (LinearLayout) findViewById(R.id.profileFrame);
         signinFrame = (LinearLayout) findViewById(R.id.signinFrame);
+        showHome();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Plus.API, Plus.PlusOptions.builder().build())
-                .addScope(Plus.SCOPE_PLUS_LOGIN).build();
+//        mGoogleApiClient = new GoogleApiClient.Builder(this)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .addApi(Plus.API, Plus.PlusOptions.builder().build())
+//                .addScope(Plus.SCOPE_PLUS_LOGIN).build();
     }
 
     @Override
@@ -89,7 +90,7 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
     @Override
     protected void onStop() {
         super.onStop();
-        if (mGoogleApiClient.isConnected()) {
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
     }

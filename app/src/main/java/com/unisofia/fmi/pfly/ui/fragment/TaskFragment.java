@@ -18,20 +18,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rey.material.widget.Spinner;
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
 
-import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
+import com.rey.material.widget.Slider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,15 +50,15 @@ public class TaskFragment extends BaseMenuFragment {
     private EditText dateFinished;
     private EditText lastResponsibleMoment;
     private CheckBox simplicity;
-    private DiscreteSeekBar simplicityBar;
+    private Slider simplicityBar;
     private CheckBox intImportance;
-    private DiscreteSeekBar intImportanceBar;
+    private Slider intImportanceBar;
     private CheckBox extImportance;
-    private DiscreteSeekBar extImportanceBar;
+    private Slider extImportanceBar;
     private CheckBox closeness;
-    private DiscreteSeekBar closenessBar;
+    private Slider closenessBar;
     private CheckBox clearness;
-    private DiscreteSeekBar clearnessBar;
+    private Slider clearnessBar;
     private SharedPreferences prefs = null;
     private View fragmentView = null;
     private boolean isRangeEnabled = false;
@@ -132,9 +131,9 @@ public class TaskFragment extends BaseMenuFragment {
         actionSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line,
                 TaskAction.values()));
 
-        actionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        actionSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(Spinner parent, View view, int position, long id) {
                 assignedUser.setVisibility(View.GONE);
                 lastResponsibleMoment.setVisibility(View.GONE);
 
@@ -143,10 +142,6 @@ public class TaskFragment extends BaseMenuFragment {
                 } else if (position == 3) {
                     lastResponsibleMoment.setVisibility(View.VISIBLE);
                 }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
 
@@ -177,24 +172,15 @@ public class TaskFragment extends BaseMenuFragment {
         lastResponsibleMoment = DatePickerFragment.setDatePicker(getActivity(), fragmentView, R.id.lastResponsibleMoment);
     }
 
-    private DiscreteSeekBar setDiscreteBar(View view, int barId, String minPref, String maxPref) {
-        DiscreteSeekBar bar = (DiscreteSeekBar) view.findViewById(barId);
-        String minValue = prefs.getString(minPref, "");
-        bar.setMin(Integer.parseInt(minValue));
-        String maxValue = prefs.getString(maxPref, "");
-        bar.setMax(Integer.parseInt(maxValue));
-        bar.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+    private Slider setSlider(View view, int barId, String minPref, String maxPref) {
+        Slider bar = (Slider) view.findViewById(barId);
+        int minValue = Integer.parseInt(prefs.getString(minPref, "0"));
+        int maxValue = Integer.parseInt(prefs.getString(maxPref, "40"));
+        bar.setValueRange(minValue, maxValue, true);
+        bar.setOnPositionChangeListener(new Slider.OnPositionChangeListener() {
             @Override
-            public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+            public void onPositionChanged(Slider view, boolean fromUser, float oldPos, float newPos, int oldValue, int newValue) {
                 calculateFlyScore();
-            }
-
-            @Override
-            public void onStartTrackingTouch(DiscreteSeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
             }
         });
         return bar;
@@ -216,16 +202,16 @@ public class TaskFragment extends BaseMenuFragment {
         clearness = (CheckBox) fragmentView.findViewById(R.id.clearness);
         clearness.setOnClickListener(new CheckBoxListener());
 
-        simplicityBar = setDiscreteBar(fragmentView, R.id.simplicityBar, "simplicityMinPref",
+        simplicityBar = setSlider(fragmentView, R.id.simplicityBar, "simplicityMinPref",
                 "simplicityMaxPref");
-        closenessBar = setDiscreteBar(fragmentView, R.id.closenessBar, "closenessMinPref",
+        closenessBar = setSlider(fragmentView, R.id.closenessBar, "closenessMinPref",
                 "closenessMaxPref");
-        intImportanceBar = setDiscreteBar(fragmentView, R.id.intImportanceBar, "intImportanceMinPref",
+        intImportanceBar = setSlider(fragmentView, R.id.intImportanceBar, "intImportanceMinPref",
                 "intImportanceMaxPref");
-        extImportanceBar = setDiscreteBar(fragmentView, R.id.extImportanceBar, "extImportanceMinPref",
+        extImportanceBar = setSlider(fragmentView, R.id.extImportanceBar, "extImportanceMinPref",
                 "extImportanceMaxPref");
 
-        clearnessBar = setDiscreteBar(fragmentView, R.id.clearnessBar, "clearnessMinPref",
+        clearnessBar = setSlider(fragmentView, R.id.clearnessBar, "clearnessMinPref",
                 "clearnessMaxPref");
 
         if (isRangeEnabled) {
@@ -250,13 +236,13 @@ public class TaskFragment extends BaseMenuFragment {
 
     private void calculateFlyScore() {
         TextView flyScore = (TextView) fragmentView.findViewById(R.id.fly_score);
-        int score = 0;
+        float score = 0;
         if (isRangeEnabled) {
-            score = intImportanceBar.getProgress() * booleanToInt(intImportance.isChecked()) +
-                    extImportanceBar.getProgress() * booleanToInt(extImportance.isChecked()) +
-                    simplicityBar.getProgress() * booleanToInt(simplicity.isChecked()) +
-                    clearnessBar.getProgress() * booleanToInt(clearness.isChecked()) +
-                    closenessBar.getProgress() * booleanToInt(closeness.isChecked());
+            score = intImportanceBar.getExactValue() * booleanToInt(intImportance.isChecked()) +
+                    extImportanceBar.getExactValue() * booleanToInt(extImportance.isChecked()) +
+                    simplicityBar.getExactValue() * booleanToInt(simplicity.isChecked()) +
+                    clearnessBar.getExactValue() * booleanToInt(clearness.isChecked()) +
+                    closenessBar.getExactValue() * booleanToInt(closeness.isChecked());
         } else {
             score = Integer.parseInt(prefs.getString("intImportanceWeightPref", ""))
                     * booleanToInt(intImportance.isChecked()) +

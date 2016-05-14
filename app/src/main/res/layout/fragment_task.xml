@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -125,16 +128,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <Spinner
+        <com.rey.material.widget.Spinner
             android:id="@+id/actionSpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            app:spn_labelEnable="true"
+            app:spn_label="@string/hint_action"/>
 
-        <Spinner
+        <com.rey.material.widget.Spinner
+            style="@style/Material.Widget.Spinner"
             android:id="@+id/assignedUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:spn_labelEnable="true"
+            app:spn_label="@string/hint_assigned_user"
+            />
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_lastResponsibleMoment"
@@ -148,7 +157,8 @@
                 android:layout_gravity="center_horizontal"
                 android:ems="10"
                 android:hint="@string/hint_lastResponsibleMoment"
-                android:inputType="date"/>
+                android:inputType="date"
+                android:visibility="gone"/>
         </android.support.design.widget.TextInputLayout>
 
 
@@ -196,15 +206,22 @@
                 android:inputType="date" />/>
         </android.support.design.widget.TextInputLayout>
 
-        <Spinner
+        <com.rey.material.widget.Spinner
             android:id="@+id/dependOn"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:minWidth="128dp"
+            app:spn_labelEnable="true"
+            app:spn_label="@string/hint_depend_on"
+           />
 
-        <Spinner
+        <com.rey.material.widget.Spinner
             android:id="@+id/project"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            app:spn_labelEnable="true"
+            app:spn_label="@string/hint_associated_project" />
 
         <TableLayout
             android:id="@+id/rangesLayout"
@@ -226,12 +243,13 @@
                     android:text="@string/hint_int_importance"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                <com.rey.material.widget.Slider
                     android:id="@+id/intImportanceBar"
+                    style="@style/Material.Widget.Slider.Discrete"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:dsb_max="15"
-                    app:dsb_min="2" />
+                    app:sl_minValue="2"
+                    app:sl_maxValue="15" />
             </TableRow>
 
             <TableRow
@@ -247,12 +265,13 @@
                     android:text="@string/hint_ext_importance"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                <com.rey.material.widget.Slider
+                    style="@style/Material.Widget.Slider.Discrete"
                     android:id="@+id/extImportanceBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:dsb_max="15"
-                    app:dsb_min="2" />
+                    app:sl_maxValue="15"
+                    app:sl_minValue="2" />
 
             </TableRow>
 
@@ -269,12 +288,13 @@
                     android:text="@string/hint_closeness"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                <com.rey.material.widget.Slider
+                    style="@style/Material.Widget.Slider.Discrete"
                     android:id="@+id/closenessBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:dsb_max="15"
-                    app:dsb_min="2" />
+                    app:sl_maxValue="15"
+                    app:sl_minValue="2" />
             </TableRow>
 
             <TableRow
@@ -290,12 +310,13 @@
                     android:text="@string/hint_simplicity"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                <com.rey.material.widget.Slider
+                    style="@style/Material.Widget.Slider.Discrete"
                     android:id="@+id/simplicityBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:dsb_max="15"
-                    app:dsb_min="2" />
+                    app:sl_maxValue="15"
+                    app:sl_minValue="2" />
             </TableRow>
 
             <TableRow
@@ -311,7 +332,8 @@
                     android:text="@string/hint_clearness"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                <com.rey.material.widget.Slider
+                    style="@style/Material.Widget.Slider.Discrete"
                     android:id="@+id/clearnessBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
@@ -324,3 +346,4 @@
 
 
 </LinearLayout>
+</ScrollView>

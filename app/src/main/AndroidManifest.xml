@@ -18,7 +18,8 @@
         android:icon="@drawable/pfly_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name="android.support.multidex.MultiDexApplication">
 <!--
         <activity
             android:name=".PFlyApp"
@@ -44,7 +45,10 @@
         </activity>
 
         <activity android:name="com.unisofia.fmi.pfly.ui.activity.HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar">
+
+
+        </activity>
         <activity android:name="com.unisofia.fmi.pfly.ui.activity.SettingsActivity" />
 
 
