@@ -1,5 +1,6 @@
 package com.unisofia.fmi.pfly.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
@@ -18,10 +19,18 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.api.model.Profile;
 import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
 
 public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks,
         OnConnectionFailedListener {
+
+    private static Context mContext;
+
+    public static Context getAppContext() {
+        return mContext;
+    }
 
     private static final int RC_SIGN_IN = 0;
 
@@ -47,6 +56,7 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
 		}*/
 
         setContentView(R.layout.activity_welcome);
+        mContext = getApplicationContext();
 
         signinButton = (SignInButton) findViewById(R.id.signin);
         signinButton.setOnClickListener(new View.OnClickListener() {
@@ -71,7 +81,9 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        if (UserManager.getLoggedUser() != null){
+            showHome();
+        }
     }
 
     @Override
@@ -87,11 +99,14 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
         signedInUser = false;
         Toast.makeText(this, "Connected", Toast.LENGTH_LONG).show();
         getProfileInformation();
+        showHome();
+    }
 
+
+    private void showHome(){
         Intent intent = new Intent(this, HomeActivity.class);
         startActivity(intent);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int responseCode,
@@ -112,8 +127,6 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
     @Override
     public void onConnectionSuspended(int i) {
         mGoogleApiClient.connect();
-        updateProfile(false);
-
     }
 
     @Override
@@ -134,6 +147,7 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
 
 
     private void googlePlusLogin() {
+        mGoogleApiClient.connect();
         if (!mGoogleApiClient.isConnecting()) {
             mSignInClicked = true;
             resolveSignInError();
@@ -142,16 +156,6 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
 
     }
 
-    private void updateProfile(boolean isSignedIn) {
-
-        if (isSignedIn) {
-            signinFrame.setVisibility(View.GONE);
-            profileFrame.setVisibility(View.VISIBLE);
-        } else {
-            signinFrame.setVisibility(View.VISIBLE);
-            profileFrame.setVisibility(View.GONE);
-        }
-    }
 
     private void getProfileInformation() {
         try {
@@ -163,9 +167,10 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
                 username.setText(personName);
                 emailLabel.setText(email);
 
-                // update profile frame with new info about Google Account
-                // profile
-                updateProfile(true);
+                Profile profile = new Profile();
+                profile.setName(personName);
+                profile.setEmail(email);
+                UserManager.loginUser(profile);
             }
         } catch (Exception e) {
             e.printStackTrace();

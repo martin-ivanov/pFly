@@ -36,6 +36,14 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
         mContext = context;
     }
 
+    public List<Task> getmTasks() {
+        return mTasks;
+    }
+
+    public void setmTasks(List<Task> mTasks) {
+        this.mTasks = mTasks;
+    }
+
     @Override
     public int getCount() {
         return mTasks.size();

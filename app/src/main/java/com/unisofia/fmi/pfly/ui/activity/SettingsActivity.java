@@ -169,6 +169,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             setHasOptionsMenu(true);
 
             Preference preference = findPreference("fly_weight_switch");
+
+            bindPreferenceSummaryToValue(findPreference("listLimitPref"));
         }
     }
 

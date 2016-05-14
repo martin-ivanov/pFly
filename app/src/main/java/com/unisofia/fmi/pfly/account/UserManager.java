@@ -7,6 +7,7 @@ import android.content.SharedPreferences.Editor;
 import com.unisofia.fmi.pfly.PFlyApp;
 import com.unisofia.fmi.pfly.api.model.Profile;
 import com.unisofia.fmi.pfly.notification.gcm.util.GcmConstants;
+import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
 
 public class UserManager {
 
@@ -14,6 +15,19 @@ public class UserManager {
     private static final String KEY_USER_ID = "KEY_USER_ID";
     private static final String KEY_USER_NAME = "KEY_USER_NAME";
     private static final String KEY_USER_EMAIL = "KEY_USER_EMAIL";
+
+    private static Context appContext = WelcomeActivity.getAppContext();
+    private static SharedPreferences userPrefs = appContext.getSharedPreferences(USER_PREFS,
+            Context.MODE_PRIVATE);
+
+    public static String getLoggedUser() {
+        return userPrefs.getString(KEY_USER_NAME, null);
+    }
+
+    public static String getLoggedUserMail() {
+        return userPrefs.getString(KEY_USER_EMAIL, null);
+    }
+
 
     private UserManager() {
         // forbid instantiation
@@ -32,8 +46,8 @@ public class UserManager {
 //    }
 
     public static long getUserId() {
-        SharedPreferences userPrefs = PFlyApp.getAppContext().getSharedPreferences(USER_PREFS,
-                Context.MODE_PRIVATE);
+//        SharedPreferences userPrefs = PFlyApp.getAppContext().getSharedPreferences(USER_PREFS,
+//                Context.MODE_PRIVATE);
 
         return userPrefs.getLong(KEY_USER_ID, 0);
     }
@@ -43,26 +57,24 @@ public class UserManager {
             return false;
         }
 
-        SharedPreferences userPrefs = PFlyApp.getAppContext().getSharedPreferences(USER_PREFS,
-                Context.MODE_PRIVATE);
-
         Editor editor = userPrefs.edit();
-
         editor.putLong(KEY_USER_ID, profile.getId());
         editor.putString(KEY_USER_NAME, profile.getName());
         editor.putString(KEY_USER_EMAIL, profile.getEmail());
 
-        SharedPreferences gcmPreds = PFlyApp.getAppContext().getSharedPreferences(
+        SharedPreferences gcmPreds = appContext.getSharedPreferences(
                 GcmConstants.GCM_PREFS, Context.MODE_PRIVATE);
         Editor gcmEditor = gcmPreds.edit();
         gcmEditor.remove(GcmConstants.PROPERTY_REG_ID);
         gcmEditor.commit();
 
+
+
         return editor.commit();
     }
 
     public static boolean logoutUser() {
-        SharedPreferences userPrefs = PFlyApp.getAppContext().getSharedPreferences(USER_PREFS,
+        SharedPreferences userPrefs = WelcomeActivity.getAppContext().getSharedPreferences(USER_PREFS,
                 Context.MODE_PRIVATE);
 
         Editor editor = userPrefs.edit();

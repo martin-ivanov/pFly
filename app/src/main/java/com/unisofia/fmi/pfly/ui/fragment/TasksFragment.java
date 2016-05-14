@@ -85,19 +85,22 @@ public class TasksFragment extends BaseMenuFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sort_tasks:
-                Toast.makeText(getActivity(), "Sorting....", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Sorting....", Toast.LENGTH_SHORT).show();
                 Collections.sort(tasksList, new Comparator<Task>() {
                     @Override
                     public int compare(Task lhs, Task rhs) {
-                        return lhs.getFlyScore() - rhs.getFlyScore();
+                        return rhs.getFlyScore() - lhs.getFlyScore();
                     }
                 });
 
                 SharedPreferences prefs  = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                int limit = prefs.getInt("listLimitPref", 10);
+                int limit = Integer.parseInt(prefs.getString("listLimitPref", "10"));
 
-                tasksList = tasksList.subList(0, limit);
-
+                if (limit < tasksList.size()) {
+                    tasksList = tasksList.subList(0, limit);
+                    Toast.makeText(getActivity(), "Limiting first " + limit + " task(s)", Toast.LENGTH_SHORT).show();
+                }
+                mTasksAdapter.setmTasks(tasksList);
                 mTasksAdapter.notifyDataSetChanged();
                 return true;
             case R.id.filter_tasks:

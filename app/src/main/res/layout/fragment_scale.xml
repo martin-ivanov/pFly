@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_margin="40dp">
+
+    <TextView
+        android:id="@+id/trashScaleItem"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@color/taskDarkBlue"/>
+
+    <TextView
+        android:id="@+id/transferScaleI"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@color/taskLightBlue" />
+
+    <TextView
+        android:id="@+id/delegateScaleItem"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@color/taskDarkGreen" />
+
+    <TextView
+        android:id="@+id/scheduleDeferScaleItem"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@color/taskLightGreen" />
+
+    <TextView
+        android:id="@+id/clarifyScaleItem"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@color/taskYellow" />
+
+    <TextView
+        android:id="@+id/simplifyScaleItem"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@color/taskOrange" />
+
+    <TextView
+        android:id="@+id/executeScaleItem"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@color/taskRed" />
+
+</LinearLayout>

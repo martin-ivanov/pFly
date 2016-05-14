@@ -1,8 +1,17 @@
 package com.unisofia.fmi.pfly.ui.fragment;
 
+import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,9 +29,12 @@ import android.widget.Toast;
 
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.api.model.Task;
+import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import static com.unisofia.fmi.pfly.api.model.Task.TaskAction;
@@ -80,7 +92,8 @@ public class TaskFragment extends BaseMenuFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save_task:
-
+                setTaskValues();
+                addTaskToCalendar(loadedTask);
                 return true;
             case R.id.reminder_task:
                 ReminderFragment reminderFragment = new ReminderFragment();
@@ -115,7 +128,6 @@ public class TaskFragment extends BaseMenuFragment {
         project = setSpinner(R.id.project, R.array.projects_array);
 
 
-
         actionSpinner = (Spinner) view.findViewById(R.id.actionSpinner);
         actionSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line,
                 TaskAction.values()));
@@ -128,13 +140,14 @@ public class TaskFragment extends BaseMenuFragment {
 
                 if (position == 1 || position == 2) {
                     assignedUser.setVisibility(View.VISIBLE);
-                } else if (position == 3){
+                } else if (position == 3) {
                     lastResponsibleMoment.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
 
@@ -143,12 +156,12 @@ public class TaskFragment extends BaseMenuFragment {
             loadedTask = (Task) args.getSerializable("task");
             if (loadedTask != null) {
                 Toast.makeText(getActivity(), "task loaded", Toast.LENGTH_LONG).show();
-                setTaskValues();
+                getTaskValues();
             }
         }
     }
 
-    private Spinner setSpinner(int spinnerId, int arrayId){
+    private Spinner setSpinner(int spinnerId, int arrayId) {
         Spinner spinner = (Spinner) fragmentView.findViewById(spinnerId);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 arrayId, android.R.layout.simple_spinner_item);
@@ -287,9 +300,85 @@ public class TaskFragment extends BaseMenuFragment {
 
     }
 
-    private void setTaskValues() {
+    private void getTaskValues() {
         name.setText(loadedTask.getName());
         description.setText(loadedTask.getDescription());
+    }
+
+    private void setTaskValues() {
+        loadedTask.setName(name.getText().toString());
+        loadedTask.setDescription(description.getText().toString());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+        try {
+            loadedTask.setTaskDeadline(sdf.parse(deadline.getText().toString()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void addTaskToCalendar(Task task) {
+        ContentResolver cr = getActivity().getContentResolver();
+
+        if (task.getName() != null && task.getTaskDeadline() != null) {
+//            String[] projection = new String[]{
+//                            CalendarContract.Calendars._ID,
+//                            CalendarContract.Calendars.NAME,
+//                            CalendarContract.Calendars.ACCOUNT_NAME,
+//                            CalendarContract.Calendars.ACCOUNT_TYPE};
+//
+//            Cursor calCursor = cr.query(CalendarContract.Calendars.CONTENT_URI, projection,
+//                    CalendarContract.Calendars.VISIBLE + " = 1", null, CalendarContract.Calendars._ID + " ASC");
+//            if (calCursor.moveToFirst()) {
+//                do {
+//                    long id = calCursor.getLong(0);
+//                    String displayName = calCursor.getString(1);
+//                    Log.d("calendarName", displayName);
+//                } while (calCursor.moveToNext());
+//            }
+
+
+            ContentValues values = new ContentValues();
+            values.put(CalendarContract.Events.DTSTART, System.currentTimeMillis());
+//            values.put(CalendarContract.Events.DURATION, "P3D");
+            Calendar c = Calendar.getInstance();
+            c.setTime(task.getTaskDeadline());
+            c.add(Calendar.DATE, 2);
+            values.put(CalendarContract.Events.DTEND, c.getTime().getTime());
+            values.put(CalendarContract.Events.ALL_DAY, 1);
+            values.put(CalendarContract.Events.TITLE, task.getName());
+            if (task.getDescription() != null) {
+                values.put(CalendarContract.Events.DESCRIPTION, task.getDescription());
+            }
+            values.put(CalendarContract.Events.CALENDAR_ID, 1);
+            values.put(CalendarContract.Events.EVENT_END_TIMEZONE, CalendarContract.Calendars.CALENDAR_TIME_ZONE);
+            values.put(CalendarContract.Events.EVENT_TIMEZONE, CalendarContract.Calendars.CALENDAR_TIME_ZONE);
+            values.put(CalendarContract.Events.ACCESS_LEVEL, CalendarContract.Events.ACCESS_PUBLIC);
+
+            int permissionCheck = ContextCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.WRITE_CALENDAR);
+            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                Uri insertUri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+                int id = Integer.parseInt(insertUri.getLastPathSegment());
+                Toast.makeText(getActivity(), "Created Calendar Event " + id, Toast.LENGTH_SHORT).show();
+                forceSync();
+            }
+        }
+    }
+
+    private void forceSync(){
+        Bundle extras = new Bundle();
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        AccountManager am = AccountManager.get(WelcomeActivity.getAppContext());
+        Account[] acc = am.getAccountsByType("com.google");
+        Account account = null;
+        if (acc.length>0) {
+            account=acc[0];
+            ContentResolver.requestSync(account, "com.android.calendar", extras);
+        }
+
     }
 
     private class CheckBoxListener implements View.OnClickListener {
