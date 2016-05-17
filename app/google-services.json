@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "552278709450",
+    "project_id": "pflyapp"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:552278709450:android:eb74ba1561f46156",
+        "android_client_info": {
+          "package_name": "com.unisofia.fmi.pfly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "552278709450-7vrbg2rcg2qmhtt9li8464oosq5c5fec.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.unisofia.fmi.pfly",
+            "certificate_hash": "9F3D5F5B71F74A04A3D5C88210A4557D4007B03D"
+          }
+        },
+        {
+          "client_id": "552278709450-o1p7b9bne5kthrivb4vg96uunmsmgohv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrCkrsLF6z13pGYLo07bLcu3_TH6wPFFk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

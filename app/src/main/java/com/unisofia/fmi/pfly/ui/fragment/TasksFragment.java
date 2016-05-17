@@ -24,8 +24,16 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 import com.unisofia.fmi.pfly.R;
+import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Task;
+import com.unisofia.fmi.pfly.api.request.BaseGsonRequest;
+import com.unisofia.fmi.pfly.api.request.RequestErrorListener;
+import com.unisofia.fmi.pfly.api.request.get.BaseGetRequest;
 import com.unisofia.fmi.pfly.ui.adapter.TasksAdapter;
 
 import java.util.ArrayList;
@@ -148,9 +156,33 @@ public class TasksFragment extends BaseMenuFragment {
         return listCheckBox;
     }
 
+    private Response.ErrorListener createMyErrorListener (){
+        return new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Do whatever you want to do with error.getMessage();
+            }
+        };
+    }
+
+    private Response.Listener<Task> createMyReqSuccessListener() {
+        return new Response.Listener<Task>() {
+            @Override
+            public void onResponse(Task response) {
+                // Do whatever you want to do with response;
+                // Like response.tags.getListing_count(); etc. etc.
+            }
+        };
+    }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+
+//        BaseGsonRequest<Task> taskGetRequest = new BaseGetRequest<>(getActivity(), "", null, Task.class, createMyErrorListener());
+//
+//        RequestManager.sendRequest(getActivity(), null, taskGetRequest, createMyReqSuccessListener());
 
 //		TODO get from server
         tasksList = new ArrayList<>();

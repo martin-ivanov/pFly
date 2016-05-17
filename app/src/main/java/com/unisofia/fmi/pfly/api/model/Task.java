@@ -23,11 +23,12 @@ public class Task implements Serializable {
     private boolean cleared;
     private Date taskDeadline;
     private String desiredOutcome;
-    private long dependOn;
+    private Long dependOn;
     private String notes;
     private Long projectId;
     private int flyScore;
     private TaskAction actionTaken;
+    private Long eventId;
 
     public Task() {
         id = 4545l;
