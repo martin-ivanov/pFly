@@ -3,7 +3,9 @@ package com.unisofia.fmi.pfly.ui.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
@@ -27,6 +29,7 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
         OnConnectionFailedListener {
 
     private static Context mContext;
+
 
     public static Context getAppContext() {
         return mContext;
@@ -57,6 +60,8 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
 
         setContentView(R.layout.activity_welcome);
         mContext = getApplicationContext();
+        setPrefs();
+
 
         signinButton = (SignInButton) findViewById(R.id.signin);
         signinButton.setOnClickListener(new View.OnClickListener() {
@@ -107,6 +112,16 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
     private void showHome(){
         Intent intent = new Intent(this, HomeActivity.class);
         startActivity(intent);
+    }
+
+
+    private void setPrefs() {
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_int_importance, true);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_ext_importance, true);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_closeness, true);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_clearness, true);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_simplicity, true);
     }
 
     @Override

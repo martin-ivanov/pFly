@@ -11,7 +11,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center_horizontal"
         android:orientation="vertical"
         android:paddingLeft="40dp"
         android:paddingRight="40dp"
@@ -87,44 +86,122 @@
                 android:inputType="textMultiLine" />
         </android.support.design.widget.TextInputLayout>
 
-        <CheckBox
-            android:id="@+id/intImportance"
-            android:layout_width="wrap_content"
+        <TableLayout
+            android:id="@+id/rangesLayout"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/hint_int_importance" />
+            android:stretchColumns="0,1">
 
-        <CheckBox
-            android:id="@+id/extImportance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/hint_ext_importance" />
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp">
 
-        <CheckBox
-            android:id="@+id/closeness"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/hint_closeness" />
+                <CheckBox
+                    android:id="@+id/intImportance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_int_importance" />
 
-        <CheckBox
-            android:id="@+id/simplicity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/hint_simplicity" />
+                <com.rey.material.widget.Slider
+                    android:visibility="gone"
+                    android:id="@+id/intImportanceBar"
+                    style="@style/Material.Widget.Slider.Discrete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sl_minValue="2"
+                    app:sl_maxValue="15" />
+            </TableRow>
 
-        <CheckBox
-            android:id="@+id/clearness"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/hint_clearness" />
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox
+
+                    android:id="@+id/extImportance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_ext_importance" />
+
+                <com.rey.material.widget.Slider
+                    android:visibility="gone"
+                    style="@style/Material.Widget.Slider.Discrete"
+                    android:id="@+id/extImportanceBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    app:sl_maxValue="15"
+                    app:sl_minValue="2" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox
+                    android:id="@+id/closeness"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_closeness" />
+
+                <com.rey.material.widget.Slider
+                    android:visibility="gone"
+                    style="@style/Material.Widget.Slider.Discrete"
+                    android:id="@+id/closenessBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sl_maxValue="15"
+                    app:sl_minValue="2" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox
+                    android:id="@+id/simplicity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_simplicity" />
+
+                <com.rey.material.widget.Slider
+                    android:visibility="gone"
+                    style="@style/Material.Widget.Slider.Discrete"
+                    android:id="@+id/simplicityBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sl_maxValue="15"
+                    app:sl_minValue="2" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox
+                    android:id="@+id/clearness"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_clearness" />
+
+                <com.rey.material.widget.Slider
+                    android:visibility="gone"
+                    style="@style/Material.Widget.Slider.Discrete"
+                    android:id="@+id/clearnessBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </TableRow>
+        </TableLayout>
 
         <TextView
             android:id="@+id/fly_score"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/recommended_action"
-            android:hint="@string/hint_recommended_action"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -136,7 +213,6 @@
             app:spn_label="@string/hint_action"/>
 
         <com.rey.material.widget.Spinner
-            style="@style/Material.Widget.Spinner"
             android:id="@+id/assignedUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -160,7 +236,6 @@
                 android:inputType="date"
                 android:visibility="gone"/>
         </android.support.design.widget.TextInputLayout>
-
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_dateCreated"
@@ -222,125 +297,6 @@
             android:gravity="center"
             app:spn_labelEnable="true"
             app:spn_label="@string/hint_associated_project" />
-
-        <TableLayout
-            android:id="@+id/rangesLayout"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:stretchColumns="0,1"
-            android:visibility="gone">
-
-            <TableRow
-                android:id="@+id/tableRow1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/intImportanceLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_int_importance"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <com.rey.material.widget.Slider
-                    android:id="@+id/intImportanceBar"
-                    style="@style/Material.Widget.Slider.Discrete"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:sl_minValue="2"
-                    app:sl_maxValue="15" />
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow2"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/extImportanceLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_ext_importance"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <com.rey.material.widget.Slider
-                    style="@style/Material.Widget.Slider.Discrete"
-                    android:id="@+id/extImportanceBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:sl_maxValue="15"
-                    app:sl_minValue="2" />
-
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow3"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/closenessLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_closeness"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <com.rey.material.widget.Slider
-                    style="@style/Material.Widget.Slider.Discrete"
-                    android:id="@+id/closenessBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:sl_maxValue="15"
-                    app:sl_minValue="2" />
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow4"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/simplicityLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_simplicity"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <com.rey.material.widget.Slider
-                    style="@style/Material.Widget.Slider.Discrete"
-                    android:id="@+id/simplicityBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:sl_maxValue="15"
-                    app:sl_minValue="2" />
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow5"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/clearnessLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/hint_clearness"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <com.rey.material.widget.Slider
-                    style="@style/Material.Widget.Slider.Discrete"
-                    android:id="@+id/clearnessBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </TableRow>
-        </TableLayout>
-
-
 
     </LinearLayout>
 

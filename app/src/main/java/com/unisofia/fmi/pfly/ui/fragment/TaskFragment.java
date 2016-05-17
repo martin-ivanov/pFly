@@ -5,6 +5,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rey.material.widget.Spinner;
+import com.unisofia.fmi.pfly.PFlyApp;
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
@@ -35,6 +37,7 @@ import com.rey.material.widget.Slider;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Map;
 
 import static com.unisofia.fmi.pfly.api.model.Task.TaskAction;
 
@@ -59,13 +62,14 @@ public class TaskFragment extends BaseMenuFragment {
     private Slider closenessBar;
     private CheckBox clearness;
     private Slider clearnessBar;
-    private SharedPreferences prefs = null;
+    private Map<String, ?> prefs = null;
     private View fragmentView = null;
     private boolean isRangeEnabled = false;
     private TableLayout rangesTable;
 
     private Task loadedTask = null;
 //    private Calendar calendar = Calendar.getInstance();
+
 
     private Spinner actionSpinner;
 
@@ -90,6 +94,10 @@ public class TaskFragment extends BaseMenuFragment {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.repeat_task:
+                Intent eventIntent = new Intent(Intent.ACTION_VIEW);
+                eventIntent.setData(Uri.parse("content://com.android.calendar/events/"
+                        + String.valueOf(loadedTask.getEventId())));
             case R.id.save_task:
                 setTaskValues();
                 addTaskToCalendar(loadedTask);
@@ -112,12 +120,11 @@ public class TaskFragment extends BaseMenuFragment {
         super.onViewCreated(view, savedInstanceState);
 
         fragmentView = view;
-        prefs = setPrefs();
-
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity()).getAll();
         name = (EditText) view.findViewById(R.id.name);
         description = (EditText) view.findViewById(R.id.description);
 
-        isRangeEnabled = prefs.getBoolean("fly_weight_switch", true);
+        isRangeEnabled = Boolean.parseBoolean(prefs.get("fly_weight_switch").toString());
         setFlyCharacteristics();
 
         setDatePickers();
@@ -174,8 +181,8 @@ public class TaskFragment extends BaseMenuFragment {
 
     private Slider setSlider(View view, int barId, String minPref, String maxPref) {
         Slider bar = (Slider) view.findViewById(barId);
-        int minValue = Integer.parseInt(prefs.getString(minPref, "0"));
-        int maxValue = Integer.parseInt(prefs.getString(maxPref, "40"));
+        int minValue = Integer.parseInt(prefs.get(minPref).toString());
+        int maxValue = Integer.parseInt(prefs.get(maxPref).toString());
         bar.setValueRange(minValue, maxValue, true);
         bar.setOnPositionChangeListener(new Slider.OnPositionChangeListener() {
             @Override
@@ -189,16 +196,12 @@ public class TaskFragment extends BaseMenuFragment {
     private void setFlyCharacteristics() {
         intImportance = (CheckBox) fragmentView.findViewById(R.id.intImportance);
         intImportance.setOnClickListener(new CheckBoxListener());
-
         extImportance = (CheckBox) fragmentView.findViewById(R.id.extImportance);
         extImportance.setOnClickListener(new CheckBoxListener());
-
         simplicity = (CheckBox) fragmentView.findViewById(R.id.simplicity);
         simplicity.setOnClickListener(new CheckBoxListener());
-
         closeness = (CheckBox) fragmentView.findViewById(R.id.closeness);
         closeness.setOnClickListener(new CheckBoxListener());
-
         clearness = (CheckBox) fragmentView.findViewById(R.id.clearness);
         clearness.setOnClickListener(new CheckBoxListener());
 
@@ -210,23 +213,18 @@ public class TaskFragment extends BaseMenuFragment {
                 "intImportanceMaxPref");
         extImportanceBar = setSlider(fragmentView, R.id.extImportanceBar, "extImportanceMinPref",
                 "extImportanceMaxPref");
-
         clearnessBar = setSlider(fragmentView, R.id.clearnessBar, "clearnessMinPref",
                 "clearnessMaxPref");
 
         if (isRangeEnabled) {
-            rangesTable = (TableLayout) fragmentView.findViewById(R.id.rangesLayout);
-            rangesTable.setVisibility(View.VISIBLE);
-        }
-    }
+            simplicityBar.setVisibility(View.VISIBLE);
+            closenessBar.setVisibility(View.VISIBLE);
+            intImportanceBar.setVisibility(View.VISIBLE);
+            extImportanceBar.setVisibility(View.VISIBLE);
+            clearnessBar.setVisibility(View.VISIBLE);
 
-    private SharedPreferences setPrefs() {
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.pref_int_importance, false);
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.pref_ext_importance, false);
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.pref_closeness, false);
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.pref_clearness, false);
-        PreferenceManager.setDefaultValues(getActivity(), R.xml.pref_simplicity, false);
-        return PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        }
     }
 
     private int booleanToInt(boolean isChecked) {
@@ -244,20 +242,20 @@ public class TaskFragment extends BaseMenuFragment {
                     clearnessBar.getExactValue() * booleanToInt(clearness.isChecked()) +
                     closenessBar.getExactValue() * booleanToInt(closeness.isChecked());
         } else {
-            score = Integer.parseInt(prefs.getString("intImportanceWeightPref", ""))
+            score = Integer.parseInt(prefs.get("intImportanceWeightPref").toString())
                     * booleanToInt(intImportance.isChecked()) +
-                    Integer.parseInt(prefs.getString("extImportanceWeightPref", ""))
+                    Integer.parseInt(prefs.get("extImportanceWeightPref").toString())
                             * booleanToInt(extImportance.isChecked()) +
-                    Integer.parseInt(prefs.getString("simplicityWeightPref", ""))
+                    Integer.parseInt(prefs.get("simplicityWeightPref").toString())
                             * booleanToInt(simplicity.isChecked()) +
-                    Integer.parseInt(prefs.getString("clearnessWeightPref", ""))
+                    Integer.parseInt(prefs.get("clearnessWeightPref").toString())
                             * booleanToInt(clearness.isChecked()) +
-                    Integer.parseInt(prefs.getString("closenessWeightPref", ""))
+                    Integer.parseInt(prefs.get("closenessWeightPref").toString())
                             * booleanToInt(closeness.isChecked());
         }
 
         if (score > 0) {
-            flyScore.setText(score + "");
+            flyScore.setText((int)score + "");
         }
     }
 
@@ -353,15 +351,15 @@ public class TaskFragment extends BaseMenuFragment {
         }
     }
 
-    private void forceSync(){
+    private void forceSync() {
         Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         AccountManager am = AccountManager.get(WelcomeActivity.getAppContext());
         Account[] acc = am.getAccountsByType("com.google");
         Account account = null;
-        if (acc.length>0) {
-            account=acc[0];
+        if (acc.length > 0) {
+            account = acc[0];
             ContentResolver.requestSync(account, "com.android.calendar", extras);
         }
 
@@ -372,8 +370,13 @@ public class TaskFragment extends BaseMenuFragment {
         @Override
         public void onClick(View v) {
             calculateFlyScore();
-            TextView recommendedAction = (TextView) fragmentView.findViewById(R.id.recommended_action);
-            recommendedAction.setText(recommendAction().toString());
+
+            TaskAction recommendAction = recommendAction();
+//            TextView recommendedAction = (TextView) fragmentView.findViewById(R.id.recommended_action);
+//            recommendedAction.setText(recommendAction.toString());
+
+            Spinner actionSpinner = (Spinner) fragmentView.findViewById(R.id.actionSpinner);
+            actionSpinner.setSelection(recommendAction.getIndex());
         }
     }
 

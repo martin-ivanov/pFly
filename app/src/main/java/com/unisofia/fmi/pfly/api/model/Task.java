@@ -4,6 +4,8 @@ import com.unisofia.fmi.pfly.R;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Task implements Serializable {
@@ -197,21 +199,38 @@ public class Task implements Serializable {
         this.actionTaken = actionTaken;
     }
 
+    public Long getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
+    }
+
     public static enum TaskAction {
-        TRASH_NOTIFY("Trash & Notify", R.color.taskDarkBlue),
-        TRANSFER_NOTIFY("Transfer & Notify", R.color.taskLightBlue),
-        DELEGATE_FOLLOW_UP("Delegate & follow-up", R.color.taskDarkGreen),
-        SCHEDULE_DEFER("Schedule & Defer", R.color.taskLightGreen),
-        CLARIFY("Clarify", R.color.taskOrange),
-        SIMPLIFY("Simplify", R.color.taskOrange),
-        EXECUTE("Execute", R.color.taskRed);
+        TRASH_NOTIFY("Trash & Notify", R.color.taskDarkBlue, 0),
+        TRANSFER_NOTIFY("Transfer & Notify", R.color.taskLightBlue, 1),
+        DELEGATE_FOLLOW_UP("Delegate & follow-up", R.color.taskDarkGreen, 2),
+        SCHEDULE_DEFER("Schedule & Defer", R.color.taskLightGreen, 3),
+        CLARIFY("Clarify", R.color.taskOrange, 4),
+        SIMPLIFY("Simplify", R.color.taskOrange, 5),
+        EXECUTE("Execute", R.color.taskRed, 6);
+
+        private static Map <Integer, TaskAction> map = new HashMap<>();
+        static {
+            for (TaskAction taskAction : TaskAction.values()){
+                map.put(taskAction.getIndex(), taskAction);
+            }
+        }
 
         private final String text;
         private final int color;
+        private final int index;
 
-        private TaskAction(final String text, int color){
+        private TaskAction(final String text, int color, int index){
             this.text = text;
             this.color = color;
+            this.index = index;
         }
 
         @Override
@@ -221,6 +240,10 @@ public class Task implements Serializable {
 
         public int getColor() {
             return color;
+        }
+
+        public int getIndex(){
+            return index;
         }
     }
 }

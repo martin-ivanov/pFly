@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".PFlyApp">
     <item
+        android:id="@+id/repeat_task"
+        android:orderInCategory="100"
+        android:title="@string/action_repeat"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/reminder_task"
         android:orderInCategory="100"
         android:title="@string/action_reminder"

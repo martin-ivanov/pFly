@@ -62,32 +62,8 @@ public class HomeActivity extends BaseActivity implements MenuListener, TasksFra
         TextView userMail = (TextView) headerView.findViewById(R.id.userMail);
         userMail.setText(UserManager.getLoggedUserMail());
 
-
         navigationView.setNavigationItemSelectedListener(this);
 
-//        mTitle = mDrawerTitle = getTitle();
-//        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
-//                mDrawerLayout, /* DrawerLayout object */
-//                R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
-//                R.string.app_name, /* "open drawer" description */
-//                R.string.app_name /* "close drawer" description */
-//        );
-//
-//        mDrawerLayout.setDrawerListener(mDrawerToggle);
-//        mDrawerToggle.syncState();
-//        // Set the drawer toggle as the DrawerListener
-//
-//
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        getSupportActionBar().setHomeButtonEnabled(true);
-//
-//        // Set up menu
-//        mMenuFragment = new MenuFragment();
-//        mMenuFragment.setMenuListener(this);
-//        getSupportFragmentManager().beginTransaction()
-//                .replace(R.id.content_menu, mMenuFragment).commit();
-//
         // Set up initial fragment
         BaseMenuFragment fragment = new TasksFragment();
         getSupportFragmentManager().beginTransaction()
@@ -156,7 +132,7 @@ public class HomeActivity extends BaseActivity implements MenuListener, TasksFra
 
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_frame, fragment).commit();
+                    .replace(R.id.content_frame, fragment).addToBackStack(null).commit();
             mMenuFragment.setSelectedItem(item);
             mDrawerLayout.closeDrawers();
         }
@@ -198,6 +174,7 @@ public class HomeActivity extends BaseActivity implements MenuListener, TasksFra
                 .replace(R.id.content_frame, taskFragment)
                 .addToBackStack(null)
                 .commit();
+        mCurrentitem = null;
     }
 
     @Override
@@ -233,7 +210,7 @@ public class HomeActivity extends BaseActivity implements MenuListener, TasksFra
 
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_frame, fragment).commit();
+                    .replace(R.id.content_frame, fragment).addToBackStack(null).commit();
             mCurrentitem = item;
             mDrawerLayout.closeDrawers();
         }

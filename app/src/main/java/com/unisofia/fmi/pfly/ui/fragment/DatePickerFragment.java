@@ -34,17 +34,24 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
 
     public static EditText setDatePicker(final Activity activity, View view, int editTextId) {
         final EditText editTextDate = (EditText) view.findViewById(editTextId);
+        editTextDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment datePickerFragment = new DatePickerFragment() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int day) {
+                        updateLabel(editTextDate, year, month, day);
+                    }
+                };
+                datePickerFragment.show(activity.getFragmentManager(), "datePicker");
+            }
+        });
+
         editTextDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    DialogFragment datePickerFragment = new DatePickerFragment() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int month, int day) {
-                            updateLabel(editTextDate, year, month, day);
-                        }
-                    };
-                    datePickerFragment.show(activity.getFragmentManager(), "datePicker");
+                    editTextDate.callOnClick();
                 }
             }
         });
