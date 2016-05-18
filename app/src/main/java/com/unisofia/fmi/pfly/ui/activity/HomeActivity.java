@@ -1,15 +1,11 @@
 package com.unisofia.fmi.pfly.ui.activity;
 
 import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
@@ -23,7 +19,6 @@ import com.unisofia.fmi.pfly.account.UserManager;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.notification.reminder.ReminderService;
 import com.unisofia.fmi.pfly.ui.fragment.BaseMenuFragment;
-import com.unisofia.fmi.pfly.ui.fragment.ProjectsFragment;
 import com.unisofia.fmi.pfly.ui.fragment.MenuFragment;
 import com.unisofia.fmi.pfly.ui.fragment.MenuFragment.MenuListener;
 import com.unisofia.fmi.pfly.ui.fragment.ScaleFragment;

@@ -6,9 +6,9 @@ import java.util.Map;
 import android.content.Context;
 
 import com.android.volley.Response.ErrorListener;
-import com.unisofia.fmi.pfly.api.model.Profile;
+import com.unisofia.fmi.pfly.api.model.Account;
 
-public class LoginRequest extends BasePostRequest<Profile> {
+public class LoginRequest extends BasePostRequest<Account> {
 
 	private static final String METHOD_NAME = "login";
 
@@ -35,8 +35,8 @@ public class LoginRequest extends BasePostRequest<Profile> {
 	}
 
 	@Override
-	protected Class<Profile> getResponseClass() {
-		return Profile.class;
+	protected Class<Account> getResponseClass() {
+		return Account.class;
 	}
 
 }

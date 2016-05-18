@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.util.SparseBooleanArray;
-import android.util.StringBuilderPrinter;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,26 +23,24 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.api.request.BaseGsonRequest;
-import com.unisofia.fmi.pfly.api.request.RequestErrorListener;
 import com.unisofia.fmi.pfly.api.request.get.BaseGetRequest;
 import com.unisofia.fmi.pfly.ui.adapter.TasksAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class TasksFragment extends BaseMenuFragment {
 
+    private View fragmentView;
     private ListView mTasksListView;
     private List<Task> tasksList;
     private TasksAdapter mTasksAdapter;
@@ -101,7 +98,7 @@ public class TasksFragment extends BaseMenuFragment {
                     }
                 });
 
-                SharedPreferences prefs  = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 int limit = Integer.parseInt(prefs.getString("listLimitPref", "10"));
 
                 if (limit < tasksList.size()) {
@@ -130,10 +127,10 @@ public class TasksFragment extends BaseMenuFragment {
         }
     }
 
-    private String setCriteria(List<CheckBox> listCheckBox){
+    private String setCriteria(List<CheckBox> listCheckBox) {
         StringBuilder criteria = new StringBuilder();
-        for (CheckBox checkBox : listCheckBox){
-            if (checkBox.isChecked()){
+        for (CheckBox checkBox : listCheckBox) {
+            if (checkBox.isChecked()) {
                 criteria.append(checkBox.getId())
                         .append(",");
             }
@@ -141,7 +138,7 @@ public class TasksFragment extends BaseMenuFragment {
         return criteria.toString();
     }
 
-    private List<CheckBox> initFilterDialog(Dialog dialog){
+    private List<CheckBox> initFilterDialog(Dialog dialog) {
         List<CheckBox> listCheckBox = new ArrayList<>();
         CheckBox intImportanceFilter = (CheckBox) dialog.findViewById(R.id.intImportanceFilter);
         listCheckBox.add(intImportanceFilter);
@@ -156,44 +153,48 @@ public class TasksFragment extends BaseMenuFragment {
         return listCheckBox;
     }
 
-    private Response.ErrorListener createMyErrorListener (){
+    private Response.ErrorListener createMyErrorListener() {
         return new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), "Response error", Toast.LENGTH_SHORT).show(); // Do whatever you want to do with response;
                 // Do whatever you want to do with error.getMessage();
             }
         };
     }
 
-    private Response.Listener<Task> createMyReqSuccessListener() {
-        return new Response.Listener<Task>() {
+    private Response.Listener<Task[]> createMyReqSuccessListener() {
+        return new Response.Listener<Task[]>() {
             @Override
-            public void onResponse(Task response) {
-                // Do whatever you want to do with response;
-                // Like response.tags.getListing_count(); etc. etc.
+            public void onResponse(Task[] response) {
+                tasksList = Arrays.asList(response);
+                Toast.makeText(getActivity(), "Response successful", Toast.LENGTH_SHORT).show(); // Do whatever you want to do with response;
+                setTaskViewAdapter();
             }
         };
+    }
+
+    private void setTaskViewAdapter() {
+        mTasksAdapter = new TasksAdapter(tasksList, getActivity());
+        mTasksListView.setAdapter(mTasksAdapter);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        fragmentView = view;
 
 
-//        BaseGsonRequest<Task> taskGetRequest = new BaseGetRequest<>(getActivity(), "", null, Task.class, createMyErrorListener());
-//
-//        RequestManager.sendRequest(getActivity(), null, taskGetRequest, createMyReqSuccessListener());
+        BaseGsonRequest<Task[]> taskGetRequest = new BaseGetRequest<>(getActivity(), "/tasks", null, Task[].class, createMyErrorListener());
+        RequestManager.sendRequest(getActivity(), null, taskGetRequest, createMyReqSuccessListener());
 
 //		TODO get from server
         tasksList = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            tasksList.add(new Task());
-        }
-
-        mTasksAdapter = new TasksAdapter(tasksList, getActivity());
-        mTasksListView = (ListView) view
-                .findViewById(R.id.listview_tasks);
-        mTasksListView.setAdapter(mTasksAdapter);
+//        for (int i = 0; i < 8; i++) {
+//            tasksList.add(new Task());
+//        }
+//
+        mTasksListView = (ListView) fragmentView.findViewById(R.id.listview_tasks);
         mTasksListView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -250,8 +251,6 @@ public class TasksFragment extends BaseMenuFragment {
                 return false;
             }
         });
-
-
 
 
         rootLayout = (CoordinatorLayout) view.findViewById(R.id.rootLayout);

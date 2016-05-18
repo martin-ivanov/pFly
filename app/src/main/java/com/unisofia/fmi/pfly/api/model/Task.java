@@ -6,245 +6,254 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class Task implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private Long taskId;
+	private int closeness;
+	private Date dateCreated;
+	private Date dateFinished;
+	private Date deadline;
+	private Integer delegatedTo;
+	private Integer dependOn;
+	private String description;
+	private String desiredOutcome;
+	private int flyScore;
+	private int importance;
+	private Date lastResponsibleMoment;
+	private String name;
+	private String notes;
+	private String recommendedAction;
+	private int simplicity;
+	private int status;
+	private String takenAction;
+	private Integer transferedTo;
+	private Account account;
+	private Project project;
+	private Long eventId;
 
-    private static final long serialVersionUID = -8810075597143046213L;
 
-    private Long id;
-    private String name;
-    private Date dateCreated;
-    private String description;
-    private TaskStatus status;
-    private Date dateFinished;
-    private boolean intImportant;
-    private boolean extImportant;
-    private boolean closed;
-    private boolean simplified;
-    private boolean cleared;
-    private Date taskDeadline;
-    private String desiredOutcome;
-    private Long dependOn;
-    private String notes;
-    private Long projectId;
-    private int flyScore;
-    private TaskAction actionTaken;
-    private Long eventId;
 
-    public Task() {
-        id = 4545l;
-        name = "Task";
-        description = "Some description";
-        flyScore = new Random().nextInt(40);
-        intImportant = getRandomBoolean();
-        extImportant = getRandomBoolean();
-        cleared = getRandomBoolean();
-        simplified = getRandomBoolean();
-        closed = getRandomBoolean();
-        actionTaken = TaskAction.CLARIFY;
-    }
+	public Task() {
+	}
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
+	public Long getTaskId() {
+		return this.taskId;
+	}
 
-    public Date getDateFinished() {
-        return dateFinished;
-    }
+	public void setTaskId(Long taskId) {
+		this.taskId = taskId;
+	}
 
-    public void setDateFinished(Date dateFinished) {
-        this.dateFinished = dateFinished;
-    }
 
-    public Long getId() {
-        return id;
-    }
+	public int getCloseness() {
+		return this.closeness;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setCloseness(int closeness) {
+		this.closeness = closeness;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public Date getDateCreated() {
+		return this.dateCreated;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
 
-    public Date getDateCreated() {
-        return dateCreated;
-    }
+	public Date getDateFinished() {
+		return this.dateFinished;
+	}
 
-    public void setDateCreated(Date dateCreated) {
-        this.dateCreated = dateCreated;
-    }
+	public void setDateFinished(Date dateFinished) {
+		this.dateFinished = dateFinished;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public Date getDeadline() {
+		return this.deadline;
+	}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	public void setDeadline(Date deadline) {
+		this.deadline = deadline;
+	}
 
-    public TaskStatus getStatus() {
-        return status;
-    }
+	public Integer getDelegatedTo() {
+		return this.delegatedTo;
+	}
 
-    public void setStatus(TaskStatus status) {
-        this.status = status;
-    }
+	public void setDelegatedTo(Integer delegatedTo) {
+		this.delegatedTo = delegatedTo;
+	}
 
-    public boolean isIntImportant() {
-        return intImportant;
-    }
+	public Integer getDependOn() {
+		return this.dependOn;
+	}
 
-    public void setIntImportant(boolean intImportant) {
-        this.intImportant = intImportant;
-    }
+	public void setDependOn(Integer dependOn) {
+		this.dependOn = dependOn;
+	}
 
-    public boolean isExtImportant() {
-        return extImportant;
-    }
+	public String getDescription() {
+		return this.description;
+	}
 
-    public void setExtImportant(boolean extImportant) {
-        this.extImportant = extImportant;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    public boolean isClosed() {
-        return closed;
-    }
+	public String getDesiredOutcome() {
+		return this.desiredOutcome;
+	}
 
-    public void setClosed(boolean closed) {
-        this.closed = closed;
-    }
+	public void setDesiredOutcome(String desiredOutcome) {
+		this.desiredOutcome = desiredOutcome;
+	}
 
-    public boolean isSimplified() {
-        return simplified;
-    }
+	public int getFlyScore() {
+		return this.flyScore;
+	}
 
-    public void setSimplified(boolean simplified) {
-        this.simplified = simplified;
-    }
+	public void setFlyScore(int flyScore) {
+		this.flyScore = flyScore;
+	}
 
-    public boolean isCleared() {
-        return cleared;
-    }
 
-    public void setCleared(boolean cleared) {
-        this.cleared = cleared;
-    }
+	public int getImportance() {
+		return this.importance;
+	}
 
-    public Date getTaskDeadline() {
-        return taskDeadline;
-    }
+	public void setImportance(int importance) {
+		this.importance = importance;
+	}
 
-    public void setTaskDeadline(Date taskDeadline) {
-        this.taskDeadline = taskDeadline;
-    }
+	public Date getLastResponsibleMoment() {
+		return this.lastResponsibleMoment;
+	}
 
-    public String getDesiredOutcome() {
-        return desiredOutcome;
-    }
+	public void setLastResponsibleMoment(Date lastResponsibleMoment) {
+		this.lastResponsibleMoment = lastResponsibleMoment;
+	}
 
-    public void setDesiredOutcome(String desiredOutcome) {
-        this.desiredOutcome = desiredOutcome;
-    }
+	public String getName() {
+		return this.name;
+	}
 
-    public long getDependOn() {
-        return dependOn;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setDependOn(long dependOn) {
-        this.dependOn = dependOn;
-    }
 
-    public String getNotes() {
-        return notes;
-    }
+	public String getNotes() {
+		return this.notes;
+	}
 
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
 
-    public Long getProjectId() {
-        return projectId;
-    }
+	public String getRecommendedAction() {
+		return this.recommendedAction;
+	}
 
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
+	public void setRecommendedAction(String recommendedAction) {
+		this.recommendedAction = recommendedAction;
+	}
 
-    public int getFlyScore() {
-        return flyScore;
-    }
+	public int getSimplicity() {
+		return this.simplicity;
+	}
 
-    public void setFlyScore(int flyScore) {
-        this.flyScore = flyScore;
-    }
+	public void setSimplicity(int simplicity) {
+		this.simplicity = simplicity;
+	}
 
-    public enum TaskStatus {INITIALIZING, IN_PROGRESS, COMPLETE}
 
-    public boolean getRandomBoolean(){
-        return Math.random() < 0.5;
-    }
+	public int getStatus() {
+		return this.status;
+	}
 
-    public TaskAction getActionTaken() {
-        return actionTaken;
-    }
+	public void setStatus(int status) {
+		this.status = status;
+	}
 
-    public void setActionTaken(TaskAction actionTaken) {
-        this.actionTaken = actionTaken;
-    }
+	public String getTakenAction() {
+		return this.takenAction;
+	}
 
-    public Long getEventId() {
-        return eventId;
-    }
+	public void setTakenAction(String takenAction) {
+		this.takenAction = takenAction;
+	}
 
-    public void setEventId(Long eventId) {
-        this.eventId = eventId;
-    }
+	public Integer getTransferedTo() {
+		return this.transferedTo;
+	}
 
-    public static enum TaskAction {
-        TRASH_NOTIFY("Trash & Notify", R.color.taskDarkBlue, 0),
-        TRANSFER_NOTIFY("Transfer & Notify", R.color.taskLightBlue, 1),
-        DELEGATE_FOLLOW_UP("Delegate & follow-up", R.color.taskDarkGreen, 2),
-        SCHEDULE_DEFER("Schedule & Defer", R.color.taskLightGreen, 3),
-        CLARIFY("Clarify", R.color.taskOrange, 4),
-        SIMPLIFY("Simplify", R.color.taskOrange, 5),
-        EXECUTE("Execute", R.color.taskRed, 6);
+	public void setTransferedTo(Integer transferedTo) {
+		this.transferedTo = transferedTo;
+	}
 
-        private static Map <Integer, TaskAction> map = new HashMap<>();
-        static {
-            for (TaskAction taskAction : TaskAction.values()){
-                map.put(taskAction.getIndex(), taskAction);
-            }
-        }
+	public Account getAccount() {
+		return this.account;
+	}
 
-        private final String text;
-        private final int color;
-        private final int index;
+	public void setAccount(Account account) {
+		this.account = account;
+	}
 
-        private TaskAction(final String text, int color, int index){
-            this.text = text;
-            this.color = color;
-            this.index = index;
-        }
+	public Project getProject() {
+		return this.project;
+	}
+	
+	public void setProject(Project project) {
+		this.project = project;
+	}
 
-        @Override
-        public String toString(){
-            return text;
-        }
+	public Long getEventId() {
+		return eventId;
+	}
 
-        public int getColor() {
-            return color;
-        }
+	public void setEventId(Long eventId) {
+		this.eventId = eventId;
+	}
 
-        public int getIndex(){
-            return index;
-        }
-    }
+	public static enum TaskAction {
+		TRASH_NOTIFY("Trash & Notify", R.color.taskDarkBlue, 0),
+		TRANSFER_NOTIFY("Transfer & Notify", R.color.taskLightBlue, 1),
+		DELEGATE_FOLLOW_UP("Delegate & follow-up", R.color.taskDarkGreen, 2),
+		SCHEDULE_DEFER("Schedule & Defer", R.color.taskLightGreen, 3),
+		CLARIFY("Clarify", R.color.taskOrange, 4),
+		SIMPLIFY("Simplify", R.color.taskOrange, 5),
+		EXECUTE("Execute", R.color.taskRed, 6);
+
+		private static Map<Integer, TaskAction> map = new HashMap<>();
+		static {
+			for (TaskAction taskAction : TaskAction.values()){
+				map.put(taskAction.getIndex(), taskAction);
+			}
+		}
+
+		private final String text;
+		private final int color;
+		private final int index;
+
+		private TaskAction(final String text, int color, int index){
+			this.text = text;
+			this.color = color;
+			this.index = index;
+		}
+
+		@Override
+		public String toString(){
+			return text;
+		}
+
+		public int getColor() {
+			return color;
+		}
+
+		public int getIndex(){
+			return index;
+		}
+	}
 }
-

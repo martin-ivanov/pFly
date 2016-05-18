@@ -6,7 +6,6 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rey.material.widget.Spinner;
-import com.unisofia.fmi.pfly.PFlyApp;
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
@@ -295,7 +293,7 @@ public class TaskFragment extends BaseMenuFragment {
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
         try {
-            loadedTask.setTaskDeadline(sdf.parse(deadline.getText().toString()));
+            loadedTask.setDeadline(sdf.parse(deadline.getText().toString()));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -305,7 +303,7 @@ public class TaskFragment extends BaseMenuFragment {
     private void addTaskToCalendar(Task task) {
         ContentResolver cr = getActivity().getContentResolver();
 
-        if (task.getName() != null && task.getTaskDeadline() != null) {
+        if (task.getName() != null && task.getDeadline() != null) {
 //            String[] projection = new String[]{
 //                            CalendarContract.Calendars._ID,
 //                            CalendarContract.Calendars.NAME,
@@ -327,7 +325,7 @@ public class TaskFragment extends BaseMenuFragment {
             values.put(CalendarContract.Events.DTSTART, System.currentTimeMillis());
 //            values.put(CalendarContract.Events.DURATION, "P3D");
             Calendar c = Calendar.getInstance();
-            c.setTime(task.getTaskDeadline());
+            c.setTime(task.getDeadline());
             c.add(Calendar.DATE, 2);
             values.put(CalendarContract.Events.DTEND, c.getTime().getTime());
             values.put(CalendarContract.Events.ALL_DAY, 1);

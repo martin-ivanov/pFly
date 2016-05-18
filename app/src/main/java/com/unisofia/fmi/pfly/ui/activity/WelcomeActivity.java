@@ -3,11 +3,9 @@ package com.unisofia.fmi.pfly.ui.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,8 +20,7 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.unisofia.fmi.pfly.account.UserManager;
-import com.unisofia.fmi.pfly.api.model.Profile;
-import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
+import com.unisofia.fmi.pfly.api.model.Account;
 
 public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks,
         OnConnectionFailedListener {
@@ -44,7 +41,7 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
     private ConnectionResult mConnectionResult;
     private SignInButton signinButton;
     private TextView username, emailLabel;
-    private LinearLayout profileFrame, signinFrame;
+    private LinearLayout accountFrame, signinFrame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +70,7 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
 
         username = (TextView) findViewById(R.id.username);
         emailLabel = (TextView) findViewById(R.id.email);
-        profileFrame = (LinearLayout) findViewById(R.id.profileFrame);
+        accountFrame = (LinearLayout) findViewById(R.id.profileFrame);
         signinFrame = (LinearLayout) findViewById(R.id.signinFrame);
         showHome();
 
@@ -104,7 +101,7 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
     public void onConnected(Bundle bundle) {
         signedInUser = false;
         Toast.makeText(this, "Connected", Toast.LENGTH_LONG).show();
-        getProfileInformation();
+        getAccountInformation();
         showHome();
     }
 
@@ -173,7 +170,7 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
     }
 
 
-    private void getProfileInformation() {
+    private void getAccountInformation() {
         try {
 
             if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
@@ -183,10 +180,10 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
                 username.setText(personName);
                 emailLabel.setText(email);
 
-                Profile profile = new Profile();
-                profile.setName(personName);
-                profile.setEmail(email);
-                UserManager.loginUser(profile);
+                Account account = new Account();
+                account.setName(personName);
+                account.setEmail(email);
+                UserManager.loginUser(account);
             }
         } catch (Exception e) {
             e.printStackTrace();

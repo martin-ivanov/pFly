@@ -56,7 +56,7 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public long getItemId(int position) {
-        return mTasks.get(position).getId();
+        return mTasks.get(position).getTaskId();
     }
 
     @Override
@@ -86,8 +86,8 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
         holder.mTitleTextView.setText(task.getName());
         holder.mDescriptionTextView.setText(task.getDescription());
         holder.mScoreTextView.setText(task.getFlyScore() + "");
-        holder.mActionIndicator.setColor(mContext.getResources().getColor(
-                task.getActionTaken().getColor()));
+//        holder.mActionIndicator.setColor(mContext.getResources().getColor(
+//                task.getTakenAction().getColor()));
 
         //TODO: set value to 0 once there is a backend distribution of tasks
         if (task.getFlyScore() > 10) {
@@ -151,21 +151,21 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
                 for (int i = 0; i < constraints.length; i++) {
                     id = Integer.parseInt(constraints[i]);
                     for (Task t : mTasks) {
-                        if (id == R.id.intImportanceFilter && t.isIntImportant()) {
-                            filtered.add(t);
-                        }
-                        if (id == R.id.extImportanceFilter && t.isExtImportant()) {
-                            filtered.add(t);
-                        }
-                        if (id == R.id.clearness && t.isCleared()) {
-                            filtered.add(t);
-                        }
-                        if (id == R.id.closeness && t.isClosed()) {
-                            filtered.add(t);
-                        }
-                        if (id == R.id.simplicity && t.isSimplified()) {
-                            filtered.add(t);
-                        }
+//                        if (id == R.id.intImportanceFilter && t.isIntImportant()) {
+//                            filtered.add(t);
+//                        }
+//                        if (id == R.id.extImportanceFilter && t.isExtImportant()) {
+//                            filtered.add(t);
+//                        }
+//                        if (id == R.id.clearness && t.isCleared()) {
+//                            filtered.add(t);
+//                        }
+//                        if (id == R.id.closeness && t.isClosed()) {
+//                            filtered.add(t);
+//                        }
+//                        if (id == R.id.simplicity && t.isSimplified()) {
+//                            filtered.add(t);
+//                        }
                     }
                 }
                 List<Task> taskList = new ArrayList<>();

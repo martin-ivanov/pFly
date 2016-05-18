@@ -4,8 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-import com.unisofia.fmi.pfly.PFlyApp;
-import com.unisofia.fmi.pfly.api.model.Profile;
+import com.unisofia.fmi.pfly.api.model.Account;
 import com.unisofia.fmi.pfly.notification.gcm.util.GcmConstants;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
 
@@ -52,13 +51,13 @@ public class UserManager {
         return userPrefs.getLong(KEY_USER_ID, 0);
     }
 
-    public static boolean loginUser(Profile profile) {
+    public static boolean loginUser(Account profile) {
         if (profile == null) {
             return false;
         }
 
         Editor editor = userPrefs.edit();
-        editor.putLong(KEY_USER_ID, profile.getId());
+//        editor.putLong(KEY_USER_ID, profile.getId());
         editor.putString(KEY_USER_NAME, profile.getName());
         editor.putString(KEY_USER_EMAIL, profile.getEmail());
 
