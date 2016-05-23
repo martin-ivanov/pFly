@@ -12,6 +12,6 @@
     <color name="taskYellow">#ffc000</color>
     <color name="taskOrange">#ff6600</color>
     <color name="taskRed">#ff0000</color>
-
+    <color name="transparent">#00000000</color>
 
 </resources>

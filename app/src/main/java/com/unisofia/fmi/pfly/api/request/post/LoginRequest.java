@@ -19,7 +19,7 @@ public class LoginRequest extends BasePostRequest<Account> {
 	private String password;
 
 	public LoginRequest(Context context, String username, String password, ErrorListener listener) {
-		super(context, METHOD_NAME, listener);
+		super(context, METHOD_NAME, "", listener);
 
 		this.username = username;
 		this.password = password;

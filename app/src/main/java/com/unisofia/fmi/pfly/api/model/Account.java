@@ -81,4 +81,9 @@ public class Account implements Serializable {
 		return task;
 	}
 
+
+	@Override
+	public String toString() {
+		return "[" + accountId + "] " + name;
+	}
 }

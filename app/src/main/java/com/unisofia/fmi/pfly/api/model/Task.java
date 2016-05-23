@@ -10,29 +10,33 @@ import java.util.Map;
 public class Task implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Long taskId;
-	private int closeness;
+	private String name;
+	private String notes;
+	private String description;
+	private String desiredOutcome;
+
+	private Integer flyScore;
+	private Integer intImportance;
+	private Integer extImportance;
+	private Integer closeness;
+	private Integer simplicity;
+	private Integer clearness;
+
 	private Date dateCreated;
 	private Date dateFinished;
 	private Date deadline;
-	private Integer delegatedTo;
-	private Integer dependOn;
-	private String description;
-	private String desiredOutcome;
-	private int flyScore;
-	private int importance;
 	private Date lastResponsibleMoment;
-	private String name;
-	private String notes;
-	private String recommendedAction;
-	private int simplicity;
-	private int status;
-	private String takenAction;
-	private Integer transferedTo;
+
+	private Integer status;
+	private Integer recommendedAction;
+	private Integer takenAction;
+	private Long transferedTo;
+	private Long delegatedTo;
+	private Long dependOn;
+
 	private Account account;
 	private Project project;
 	private Long eventId;
-
-
 
 	public Task() {
 	}
@@ -46,12 +50,8 @@ public class Task implements Serializable {
 	}
 
 
-	public int getCloseness() {
+	public Integer getCloseness() {
 		return this.closeness;
-	}
-
-	public void setCloseness(int closeness) {
-		this.closeness = closeness;
 	}
 
 	public Date getDateCreated() {
@@ -78,19 +78,19 @@ public class Task implements Serializable {
 		this.deadline = deadline;
 	}
 
-	public Integer getDelegatedTo() {
+	public Long getDelegatedTo() {
 		return this.delegatedTo;
 	}
 
-	public void setDelegatedTo(Integer delegatedTo) {
+	public void setDelegatedTo(Long delegatedTo) {
 		this.delegatedTo = delegatedTo;
 	}
 
-	public Integer getDependOn() {
+	public Long getDependOn() {
 		return this.dependOn;
 	}
 
-	public void setDependOn(Integer dependOn) {
+	public void setDependOn(Long dependOn) {
 		this.dependOn = dependOn;
 	}
 
@@ -118,15 +118,6 @@ public class Task implements Serializable {
 		this.flyScore = flyScore;
 	}
 
-
-	public int getImportance() {
-		return this.importance;
-	}
-
-	public void setImportance(int importance) {
-		this.importance = importance;
-	}
-
 	public Date getLastResponsibleMoment() {
 		return this.lastResponsibleMoment;
 	}
@@ -152,20 +143,16 @@ public class Task implements Serializable {
 		this.notes = notes;
 	}
 
-	public String getRecommendedAction() {
+	public Integer getRecommendedAction() {
 		return this.recommendedAction;
 	}
 
-	public void setRecommendedAction(String recommendedAction) {
+	public void setRecommendedAction(Integer recommendedAction) {
 		this.recommendedAction = recommendedAction;
 	}
 
-	public int getSimplicity() {
+	public Integer getSimplicity() {
 		return this.simplicity;
-	}
-
-	public void setSimplicity(int simplicity) {
-		this.simplicity = simplicity;
 	}
 
 
@@ -177,19 +164,19 @@ public class Task implements Serializable {
 		this.status = status;
 	}
 
-	public String getTakenAction() {
+	public Integer getTakenAction() {
 		return this.takenAction;
 	}
 
-	public void setTakenAction(String takenAction) {
+	public void setTakenAction(Integer takenAction) {
 		this.takenAction = takenAction;
 	}
 
-	public Integer getTransferedTo() {
+	public Long getTransferedTo() {
 		return this.transferedTo;
 	}
 
-	public void setTransferedTo(Integer transferedTo) {
+	public void setTransferedTo(Long transferedTo) {
 		this.transferedTo = transferedTo;
 	}
 
@@ -217,7 +204,47 @@ public class Task implements Serializable {
 		this.eventId = eventId;
 	}
 
-	public static enum TaskAction {
+	public void setFlyScore(Integer flyScore) {
+		this.flyScore = flyScore;
+	}
+
+	public Integer getIntImportance() {
+		return intImportance;
+	}
+
+	public void setIntImportance(Integer intImportance) {
+		this.intImportance = intImportance;
+	}
+
+	public Integer getExtImportance() {
+		return extImportance;
+	}
+
+	public void setExtImportance(Integer extImportance) {
+		this.extImportance = extImportance;
+	}
+
+	public void setCloseness(Integer closeness) {
+		this.closeness = closeness;
+	}
+
+	public void setSimplicity(Integer simplicity) {
+		this.simplicity = simplicity;
+	}
+
+	public Integer getClearness() {
+		return clearness;
+	}
+
+	public void setClearness(Integer clearness) {
+		this.clearness = clearness;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public enum TaskAction {
 		TRASH_NOTIFY("Trash & Notify", R.color.taskDarkBlue, 0),
 		TRANSFER_NOTIFY("Transfer & Notify", R.color.taskLightBlue, 1),
 		DELEGATE_FOLLOW_UP("Delegate & follow-up", R.color.taskDarkGreen, 2),
@@ -237,7 +264,7 @@ public class Task implements Serializable {
 		private final int color;
 		private final int index;
 
-		private TaskAction(final String text, int color, int index){
+		TaskAction(final String text, int color, int index){
 			this.text = text;
 			this.color = color;
 			this.index = index;
@@ -255,5 +282,10 @@ public class Task implements Serializable {
 		public int getIndex(){
 			return index;
 		}
+
+		public static TaskAction getAction(int index){
+			return map.get(index);
+		}
+
 	}
 }

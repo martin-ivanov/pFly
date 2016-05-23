@@ -1,6 +1,8 @@
 package com.unisofia.fmi.pfly.api.request;
 
 import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.VolleyError;
@@ -47,6 +49,9 @@ public class RequestErrorListener implements ErrorListener {
 		} else {
 			handleError(error);
 		}
+
+		Log.e("PFLY", error.toString());
+		Toast.makeText(mActivity.get(), "Response error", Toast.LENGTH_SHORT).show();
 	}
 
 	private void handleError(VolleyError error) {

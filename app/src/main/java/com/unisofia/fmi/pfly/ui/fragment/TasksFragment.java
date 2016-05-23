@@ -23,17 +23,11 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.unisofia.fmi.pfly.R;
-import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Task;
-import com.unisofia.fmi.pfly.api.request.BaseGsonRequest;
-import com.unisofia.fmi.pfly.api.request.get.BaseGetRequest;
 import com.unisofia.fmi.pfly.ui.adapter.TasksAdapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -42,11 +36,9 @@ public class TasksFragment extends BaseMenuFragment {
 
     private View fragmentView;
     private ListView mTasksListView;
-    private List<Task> tasksList;
     private TasksAdapter mTasksAdapter;
 
     OnTaskSelectedListener mListener;
-
     CoordinatorLayout rootLayout;
     FloatingActionButton fabBtn;
     Dialog filterDialog;
@@ -89,38 +81,16 @@ public class TasksFragment extends BaseMenuFragment {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.refresh_tasks:
+                listFilterCriteria = initFilterDialog(filterDialog);
+                mTasksAdapter.fetchTasks();
+                return true;
             case R.id.sort_tasks:
-                Toast.makeText(getActivity(), "Sorting....", Toast.LENGTH_SHORT).show();
-                Collections.sort(tasksList, new Comparator<Task>() {
-                    @Override
-                    public int compare(Task lhs, Task rhs) {
-                        return rhs.getFlyScore() - lhs.getFlyScore();
-                    }
-                });
-
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                int limit = Integer.parseInt(prefs.getString("listLimitPref", "10"));
-
-                if (limit < tasksList.size()) {
-                    tasksList = tasksList.subList(0, limit);
-                    Toast.makeText(getActivity(), "Limiting first " + limit + " task(s)", Toast.LENGTH_SHORT).show();
-                }
-                mTasksAdapter.setmTasks(tasksList);
+                sortTasks();
                 mTasksAdapter.notifyDataSetChanged();
                 return true;
             case R.id.filter_tasks:
-                Toast.makeText(getActivity(), "Filter dialog....", Toast.LENGTH_LONG).show();
-
-                Button dialogButton = (Button) filterDialog.findViewById(R.id.dialogButtonOK);
-                dialogButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        filterDialog.dismiss();
-                        mTasksAdapter.getFilter()
-                                .filter(setCriteria(listFilterCriteria));
-                    }
-                });
-                filterDialog.show();
+                filterTasks();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -141,42 +111,21 @@ public class TasksFragment extends BaseMenuFragment {
     private List<CheckBox> initFilterDialog(Dialog dialog) {
         List<CheckBox> listCheckBox = new ArrayList<>();
         CheckBox intImportanceFilter = (CheckBox) dialog.findViewById(R.id.intImportanceFilter);
+        intImportanceFilter.setChecked(false);
         listCheckBox.add(intImportanceFilter);
         CheckBox extImportanceFilter = (CheckBox) dialog.findViewById(R.id.extImportanceFilter);
+        extImportanceFilter.setChecked(false);
         listCheckBox.add(extImportanceFilter);
         CheckBox simplicityFilter = (CheckBox) dialog.findViewById(R.id.simplicityFilter);
+        simplicityFilter.setChecked(false);
         listCheckBox.add(simplicityFilter);
         CheckBox closenessFilter = (CheckBox) dialog.findViewById(R.id.closenessFilter);
+        closenessFilter.setChecked(false);
         listCheckBox.add(closenessFilter);
         CheckBox clearnessFilter = (CheckBox) dialog.findViewById(R.id.clearnessFilter);
+        clearnessFilter.setChecked(false);
         listCheckBox.add(clearnessFilter);
         return listCheckBox;
-    }
-
-    private Response.ErrorListener createMyErrorListener() {
-        return new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(), "Response error", Toast.LENGTH_SHORT).show(); // Do whatever you want to do with response;
-                // Do whatever you want to do with error.getMessage();
-            }
-        };
-    }
-
-    private Response.Listener<Task[]> createMyReqSuccessListener() {
-        return new Response.Listener<Task[]>() {
-            @Override
-            public void onResponse(Task[] response) {
-                tasksList = Arrays.asList(response);
-                Toast.makeText(getActivity(), "Response successful", Toast.LENGTH_SHORT).show(); // Do whatever you want to do with response;
-                setTaskViewAdapter();
-            }
-        };
-    }
-
-    private void setTaskViewAdapter() {
-        mTasksAdapter = new TasksAdapter(tasksList, getActivity());
-        mTasksListView.setAdapter(mTasksAdapter);
     }
 
     @Override
@@ -184,17 +133,27 @@ public class TasksFragment extends BaseMenuFragment {
         super.onViewCreated(view, savedInstanceState);
         fragmentView = view;
 
+        rootLayout = (CoordinatorLayout) view.findViewById(R.id.rootLayout);
+        fabBtn = (FloatingActionButton) view.findViewById(R.id.addTask);
+        fabBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content_frame, new TaskFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
 
-        BaseGsonRequest<Task[]> taskGetRequest = new BaseGetRequest<>(getActivity(), "/tasks", null, Task[].class, createMyErrorListener());
-        RequestManager.sendRequest(getActivity(), null, taskGetRequest, createMyReqSuccessListener());
-
-//		TODO get from server
-        tasksList = new ArrayList<>();
+//        tasksList = new ArrayList<>();
 //        for (int i = 0; i < 8; i++) {
 //            tasksList.add(new Task());
 //        }
 //
+
+        mTasksAdapter = new TasksAdapter(getActivity());
         mTasksListView = (ListView) fragmentView.findViewById(R.id.listview_tasks);
+        mTasksListView.setAdapter(mTasksAdapter);
         mTasksListView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -219,15 +178,7 @@ public class TasksFragment extends BaseMenuFragment {
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.delete_task:
-                        SparseBooleanArray selected = mTasksAdapter
-                                .getSelectedIds();
-                        for (int i = (selected.size() - 1); i >= 0; i--) {
-                            if (selected.valueAt(i)) {
-                                Task selectedItem = mTasksAdapter
-                                        .getItem(selected.keyAt(i));
-                                mTasksAdapter.remove(selectedItem);
-                            }
-                        }
+                        deleteTasks();
                         mode.finish();
                         return true;
                     default:
@@ -251,19 +202,62 @@ public class TasksFragment extends BaseMenuFragment {
                 return false;
             }
         });
+    }
 
+    private void deleteTasks(){
+        SparseBooleanArray selected = mTasksAdapter
+                .getSelectedIds();
+        List<Task> removedTasks = new ArrayList<>();
+        for (int i = (selected.size() - 1); i >= 0; i--) {
+            if (selected.valueAt(i)) {
+                removedTasks.add(mTasksAdapter
+                        .getItem(selected.keyAt(i)));
+            }
+        }
+        if (removedTasks.size() > 0) {
+            for (Task task : removedTasks) {
+                mTasksAdapter.remove(task);
+            }
+        }
+    }
 
-        rootLayout = (CoordinatorLayout) view.findViewById(R.id.rootLayout);
-        fabBtn = (FloatingActionButton) view.findViewById(R.id.addTask);
-        fabBtn.setOnClickListener(new View.OnClickListener() {
+    private void sortTasks(){
+        Toast.makeText(getActivity(), "Sorting....", Toast.LENGTH_SHORT).show();
+        List<Task> tasks = mTasksAdapter.getTasks();
+        Collections.sort(tasks, new Comparator<Task>() {
             @Override
-            public void onClick(View v) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.content_frame, new TaskFragment())
-                        .addToBackStack(null)
-                        .commit();
+            public int compare(Task lhs, Task rhs) {
+                return rhs.getFlyScore() - lhs.getFlyScore();
             }
         });
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int limit = Integer.parseInt(prefs.getString("listLimitPref", "10"));
+
+        if (limit < tasks.size()) {
+            tasks = tasks.subList(0, limit);
+            Toast.makeText(getActivity(), "Limiting first " + limit + " task(s)", Toast.LENGTH_SHORT).show();
+        }
+        mTasksAdapter.setTasks(tasks);
+    }
+
+    private void filterTasks(){
+        Toast.makeText(getActivity(), "Filter dialog....", Toast.LENGTH_LONG).show();
+
+        Button dialogButton = (Button) filterDialog.findViewById(R.id.dialogButtonOK);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filterDialog.dismiss();
+                mTasksAdapter.getFilter()
+                        .filter(setCriteria(listFilterCriteria));
+            }
+        });
+        filterDialog.show();
+    }
+
+    private void searchTasks(){
+
     }
 
     // Container Activity must implement this interface

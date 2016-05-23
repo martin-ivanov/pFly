@@ -1,5 +1,6 @@
 package com.unisofia.fmi.pfly.api.request.post;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
@@ -16,9 +17,11 @@ public abstract class BasePostRequest<T> extends BaseGsonRequest<T> {
 	protected abstract Map<String, String> getPostParams();
 
 	private static String url;
+	private String jsonBody;
 
-	public BasePostRequest(Context context, String methodName, ErrorListener listener) {
+	public BasePostRequest(Context context, String methodName, String body, ErrorListener listener) {
 		super(Method.POST, buildUrl(methodName), new RequestErrorListener(context, listener));
+		this.jsonBody = body;
 	}
 
 	@Override
@@ -31,6 +34,26 @@ public abstract class BasePostRequest<T> extends BaseGsonRequest<T> {
 		Log.i("Request", "===== End of Post Request =====");
 
 		return postParams;
+	}
+
+//	@Override
+//	public Map<String, String> getHeaders() throws AuthFailureError {
+//		Map<String,String> params = new HashMap<String, String>();
+//		params.put("Content-Type","application/json");
+//		params.put("Accept","application/json");
+//		return params;
+//	}
+
+	@Override
+	public byte[] getBody() throws AuthFailureError {
+		Log.d("POST TASK", jsonBody);
+		return jsonBody.getBytes();
+	}
+//
+	@Override
+	public String getBodyContentType() {
+		Log.d("body content type", "body content");
+		return "application/json";
 	}
 
 	private static String buildUrl(String methodName) {

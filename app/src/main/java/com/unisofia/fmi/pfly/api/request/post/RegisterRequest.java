@@ -24,7 +24,7 @@ public class RegisterRequest extends BasePostRequest<Account> {
 
 	public RegisterRequest(Context context, String name, String email, String password,
 			String gcmId, ErrorListener listener) {
-		super(context, METHOD_NAME, listener);
+		super(context, METHOD_NAME, "", listener);
 
 		this.name = name;
 		this.email = email;

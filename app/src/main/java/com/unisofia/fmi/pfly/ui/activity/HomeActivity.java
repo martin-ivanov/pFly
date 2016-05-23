@@ -26,15 +26,12 @@ import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
 import com.unisofia.fmi.pfly.ui.fragment.TasksFragment;
 
 @SuppressWarnings("deprecation")
-public class HomeActivity extends BaseActivity implements MenuListener, TasksFragment.OnTaskSelectedListener,
+public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSelectedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout mDrawerLayout;
     private android.support.v7.app.ActionBarDrawerToggle mDrawerToggle;
-    private MenuFragment mMenuFragment;
     private MenuItem mCurrentitem;
-    private CharSequence mDrawerTitle;
-    private CharSequence mTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,12 +82,9 @@ public class HomeActivity extends BaseActivity implements MenuListener, TasksFra
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        // Handle your other action bar items...
         int id = item.getItemId();
         switch (id) {
             case R.id.action_settings:
@@ -100,37 +94,6 @@ public class HomeActivity extends BaseActivity implements MenuListener, TasksFra
                 return super.onOptionsItemSelected(item);
         }
 
-    }
-
-    @Override
-    public void onMenuItemSelected(
-            com.unisofia.fmi.pfly.ui.fragment.MenuFragment.MenuItem item) {
-//        if (mCurrentitem == item) {
-//            mDrawerLayout.closeDrawers();
-//            return;
-//        }
-//
-        BaseMenuFragment fragment = null;
-//        switch (item.) {
-//            case PROJECTS:
-//                fragment = new ProjectsFragment();
-//                break;
-//            case TASKS:
-//                fragment = new TasksFragment();
-//                break;
-//            case SUBSCRIBE:
-//            case LOGOUT:
-//            default:
-//                onLogout();
-//                break;
-//        }
-
-        if (fragment != null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-            mMenuFragment.setSelectedItem(item);
-            mDrawerLayout.closeDrawers();
-        }
     }
 
     private void onLogout() {
@@ -153,7 +116,6 @@ public class HomeActivity extends BaseActivity implements MenuListener, TasksFra
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_pfly, menu);
         return true;
     }

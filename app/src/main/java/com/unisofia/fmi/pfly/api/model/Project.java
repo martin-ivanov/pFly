@@ -40,4 +40,8 @@ public class Project implements Serializable {
 		this.description = description;
 	}
 
+	@Override
+	public String toString() {
+		return "[" + id + "] " + name;
+	}
 }

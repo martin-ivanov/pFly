@@ -6,6 +6,7 @@
     <string name="action_reminder">Create reminder</string>
     <string name="action_repeat">Repeat</string>
     <string name="action_sort">Sort</string>
+    <string name="action_refresh">Refresh</string>
     <string name="action_filter">Filter</string>
     <string name="action_delete">Delete</string>
 
