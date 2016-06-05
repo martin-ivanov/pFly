@@ -7,10 +7,10 @@ import java.util.List;
 public class Account implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Long accountId;
-	private BigInteger deviceId;
+	private String deviceId;
 	private String email;
 	private String name;
-	private BigInteger userId;
+	private String userId;
 	private List<Task> tasks;
 
 	public Account() {
@@ -24,11 +24,11 @@ public class Account implements Serializable {
 		this.accountId = accountId;
 	}
 
-	public BigInteger getDeviceId() {
+	public String getDeviceId() {
 		return this.deviceId;
 	}
 
-	public void setDeviceId(BigInteger deviceId) {
+	public void setDeviceId(String deviceId) {
 		this.deviceId = deviceId;
 	}
 
@@ -48,11 +48,11 @@ public class Account implements Serializable {
 		this.name = name;
 	}
 
-	public BigInteger getUserId() {
+	public String getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(BigInteger userId) {
+	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 

@@ -25,10 +25,10 @@ public abstract class BaseDeleteRequest<T> extends BaseGsonRequest<T> {
 	protected Map<String, String> getParams() throws AuthFailureError {
 		Map<String, String> postParams = getPostParams();
 
-		Log.i("Request", "===== Post Request =====");
-		Log.i("Request", "Post URL: " + url);
+		Log.i("Request", "===== Delete Request =====");
+		Log.i("Request", "Delete URL: " + url);
 		Log.i("Request", "Params: " + postParams);
-		Log.i("Request", "===== End of Post Request =====");
+		Log.i("Request", "===== End of Delete Request =====");
 
 		return postParams;
 	}

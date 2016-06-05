@@ -4,5 +4,6 @@ import com.unisofia.fmi.pfly.api.model.Task;
 import java.util.List;
 
 public interface Criteria {
-    List<Task> meetCriteria(List<Task> tasks);
+//    List<Task> meetCriteria(List<Task> tasks);
+    List<Task> meetCriteria(List<Task> tasks, String filter);
 }

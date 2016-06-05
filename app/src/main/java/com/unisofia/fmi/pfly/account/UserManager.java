@@ -6,6 +6,7 @@ import android.content.SharedPreferences.Editor;
 
 import com.unisofia.fmi.pfly.api.model.Account;
 import com.unisofia.fmi.pfly.notification.gcm.util.GcmConstants;
+import com.unisofia.fmi.pfly.notification.gcm.util.GcmUtil;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
 
 public class UserManager {
@@ -18,6 +19,26 @@ public class UserManager {
     private static Context appContext = WelcomeActivity.getAppContext();
     private static SharedPreferences userPrefs = appContext.getSharedPreferences(USER_PREFS,
             Context.MODE_PRIVATE);
+    private static Account loggedAccount;
+    private static Long accountId;
+    private static String accountName;
+    private static String accountMail;
+    private static String deviceId;
+
+    static{
+        accountId = userPrefs.getLong(KEY_USER_ID, -1);
+        accountName = userPrefs.getString(KEY_USER_NAME, null);
+        accountMail = userPrefs.getString(KEY_USER_EMAIL, null);
+        deviceId = GcmUtil.getRegistrationId(appContext);
+
+        if (accountId > -1 && accountMail != null && deviceId != null){
+            loggedAccount = new Account();
+            loggedAccount.setAccountId(accountId);
+            loggedAccount.setName(accountName);
+            loggedAccount.setEmail(accountMail);
+            loggedAccount.setDeviceId(deviceId);
+        }
+    }
 
     public static String getLoggedUser() {
         return userPrefs.getString(KEY_USER_NAME, null);
@@ -32,22 +53,7 @@ public class UserManager {
         // forbid instantiation
     }
 
-//    public static Profile getProfile() {
-//        SharedPreferences userPrefs = PFlyApp.getAppContext().getSharedPreferences(USER_PREFS,
-//                Context.MODE_PRIVATE);
-//
-//        Profile profile = new Profile();
-//        profile.setId(userPrefs.getLong(KEY_USER_ID, 0));
-//        profile.setName(userPrefs.getString(KEY_USER_NAME, ""));
-//        profile.setEmail(userPrefs.getString(KEY_USER_EMAIL, ""));
-//
-//        return profile;
-//    }
-
     public static long getUserId() {
-//        SharedPreferences userPrefs = PFlyApp.getAppContext().getSharedPreferences(USER_PREFS,
-//                Context.MODE_PRIVATE);
-
         return userPrefs.getLong(KEY_USER_ID, 0);
     }
 
@@ -55,9 +61,9 @@ public class UserManager {
         if (profile == null) {
             return false;
         }
-
+        loggedAccount = profile;
         Editor editor = userPrefs.edit();
-//        editor.putLong(KEY_USER_ID, profile.getId());
+        editor.putLong(KEY_USER_ID, profile.getAccountId());
         editor.putString(KEY_USER_NAME, profile.getName());
         editor.putString(KEY_USER_EMAIL, profile.getEmail());
 
@@ -66,9 +72,6 @@ public class UserManager {
         Editor gcmEditor = gcmPreds.edit();
         gcmEditor.remove(GcmConstants.PROPERTY_REG_ID);
         gcmEditor.commit();
-
-
-
         return editor.commit();
     }
 
@@ -81,10 +84,15 @@ public class UserManager {
         editor.remove(KEY_USER_NAME);
         editor.remove(KEY_USER_EMAIL);
 
+        loggedAccount = null;
         return editor.commit();
     }
 
     public static boolean isUserLoggedIn() {
         return getUserId() != 0;
+    }
+
+    public static Account getLoggedAccount() {
+        return loggedAccount;
     }
 }

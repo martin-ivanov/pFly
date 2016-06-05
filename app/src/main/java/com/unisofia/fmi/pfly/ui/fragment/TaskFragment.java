@@ -25,14 +25,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.rey.material.widget.Slider;
 import com.rey.material.widget.Spinner;
 import com.unisofia.fmi.pfly.R;
+import com.unisofia.fmi.pfly.account.UserManager;
 import com.unisofia.fmi.pfly.api.ApiConstants;
 import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Account;
+import com.unisofia.fmi.pfly.api.util.DateSerializer;
 import com.unisofia.fmi.pfly.api.model.Project;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.api.request.BaseGsonRequest;
@@ -40,19 +42,20 @@ import com.unisofia.fmi.pfly.api.request.RequestErrorListener;
 import com.unisofia.fmi.pfly.api.request.get.BaseGetRequest;
 import com.unisofia.fmi.pfly.api.request.post.BasePostRequest;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
-import com.unisofia.fmi.pfly.ui.adapter.ProjectsAdapter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import static com.unisofia.fmi.pfly.api.model.Task.TaskAction;
 
 public class TaskFragment extends BaseMenuFragment {
+    private TextView taskId;
     private EditText name;
     private EditText description;
 
@@ -83,6 +86,9 @@ public class TaskFragment extends BaseMenuFragment {
     private Slider clearnessBar;
     private int clearnessValue;
 
+    private List<CheckBox> flyCharacteristics;
+    private List<Slider> flyCharacteristicsRanges;
+
     private Spinner dependentTaskSpinner;
     private Spinner assignedUser;
     private Spinner projectSpinner;
@@ -91,11 +97,12 @@ public class TaskFragment extends BaseMenuFragment {
     private int flyScore;
     private long eventId;
 
-
+    SimpleDateFormat sdf = new SimpleDateFormat(DatePickerFragment.DATE_FORMAT_PATTERN);
     private Map<String, ?> prefs = null;
     private View fragmentView = null;
     private boolean isRangeEnabled = false;
     private Task loadedTask = null;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -140,6 +147,7 @@ public class TaskFragment extends BaseMenuFragment {
 
         fragmentView = view;
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity()).getAll();
+        taskId = (TextView) view.findViewById(R.id.taskId);
         name = (EditText) view.findViewById(R.id.name);
         description = (EditText) view.findViewById(R.id.description);
         notes = (EditText) view.findViewById(R.id.notes);
@@ -153,23 +161,13 @@ public class TaskFragment extends BaseMenuFragment {
         actionSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line,
                 TaskAction.values()));
 
-        if (assignedUser == null) {
-        }
 
         actionSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(Spinner parent, View view, int position, long id) {
+                performUiChangesOnActionChanged(position, assignedUser, lastResponsibleMoment);
+                performUiChangesOnActionTaken();
 
-                if (assignedUser != null && lastResponsibleMoment != null) {
-                    assignedUser.setVisibility(View.GONE);
-                    lastResponsibleMoment.setVisibility(View.GONE);
-
-                    if (position == 1 || position == 2) {
-                        assignedUser.setVisibility(View.VISIBLE);
-                    } else if (position == 3) {
-                        lastResponsibleMoment.setVisibility(View.VISIBLE);
-                    }
-                }
             }
         });
 
@@ -187,18 +185,54 @@ public class TaskFragment extends BaseMenuFragment {
         }
     }
 
+    private void performUiChangesOnActionChanged(int position, Spinner assignedUser, EditText lastResponsibleMoment) {
+        if (assignedUser != null) {
+            assignedUser.setVisibility(View.GONE);
+            if (position == 2 || position == 3) {
+                assignedUser.setVisibility(View.VISIBLE);
+            }
+
+
+            if (lastResponsibleMoment != null) {
+                lastResponsibleMoment.setVisibility(View.GONE);
+
+                if (position == 4) {
+                    lastResponsibleMoment.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+    }
+
+    private void performUiChangesOnActionTaken() {
+        for (CheckBox flyCharacteristic : flyCharacteristics) {
+            flyCharacteristic.setEnabled(false);
+        }
+
+        for (Slider slider : flyCharacteristicsRanges) {
+            slider.setVisibility(View.GONE);
+        }
+        if (loadedTask != null){
+            dateFinished.setText(sdf.format(loadedTask.getDateFinished()));
+        }else{
+            dateFinished.setText(sdf.format(Calendar.getInstance().getTime()));
+        }
+    }
+
     private Spinner setSpinner(int spinnerId, List<String> objects) {
         Spinner spinner = (Spinner) fragmentView.findViewById(spinnerId);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_item, objects);
-        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        spinner.setAdapter(adapter);
+        if (objects != null) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
+                    android.R.layout.simple_spinner_item, objects);
+            adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+            spinner.setAdapter(adapter);
+        }
         return spinner;
     }
 
     private void setDatePickers() {
         deadline = DatePickerFragment.setDatePicker(getActivity(), fragmentView, R.id.deadline);
         dateCreated = DatePickerFragment.setDatePicker(getActivity(), fragmentView, R.id.dateCreated);
+        dateCreated.setText(sdf.format(Calendar.getInstance().getTime()));
         dateFinished = DatePickerFragment.setDatePicker(getActivity(), fragmentView, R.id.dateFinished);
         lastResponsibleMoment = DatePickerFragment.setDatePicker(getActivity(), fragmentView, R.id.lastResponsibleMoment);
     }
@@ -218,76 +252,82 @@ public class TaskFragment extends BaseMenuFragment {
     }
 
     private void setFlyCharacteristics() {
+        flyCharacteristics = new ArrayList<>();
+
         intImportance = (CheckBox) fragmentView.findViewById(R.id.intImportance);
         intImportance.setOnClickListener(new CheckBoxListener());
+        flyCharacteristics.add(intImportance);
         extImportance = (CheckBox) fragmentView.findViewById(R.id.extImportance);
         extImportance.setOnClickListener(new CheckBoxListener());
+        flyCharacteristics.add(extImportance);
         simplicity = (CheckBox) fragmentView.findViewById(R.id.simplicity);
         simplicity.setOnClickListener(new CheckBoxListener());
+        flyCharacteristics.add(simplicity);
         closeness = (CheckBox) fragmentView.findViewById(R.id.closeness);
         closeness.setOnClickListener(new CheckBoxListener());
+        flyCharacteristics.add(closeness);
         clearness = (CheckBox) fragmentView.findViewById(R.id.clearness);
         clearness.setOnClickListener(new CheckBoxListener());
+        flyCharacteristics.add(clearness);
 
+        flyCharacteristicsRanges = new ArrayList<>();
         simplicityBar = setSlider(fragmentView, R.id.simplicityBar, "simplicityMinPref",
                 "simplicityMaxPref");
+        flyCharacteristicsRanges.add(simplicityBar);
         closenessBar = setSlider(fragmentView, R.id.closenessBar, "closenessMinPref",
                 "closenessMaxPref");
+        flyCharacteristicsRanges.add(closenessBar);
         intImportanceBar = setSlider(fragmentView, R.id.intImportanceBar, "intImportanceMinPref",
                 "intImportanceMaxPref");
+        flyCharacteristicsRanges.add(intImportanceBar);
         extImportanceBar = setSlider(fragmentView, R.id.extImportanceBar, "extImportanceMinPref",
                 "extImportanceMaxPref");
+        flyCharacteristicsRanges.add(extImportanceBar);
         clearnessBar = setSlider(fragmentView, R.id.clearnessBar, "clearnessMinPref",
                 "clearnessMaxPref");
+        flyCharacteristicsRanges.add(clearnessBar);
 
         if (isRangeEnabled) {
-            simplicityBar.setVisibility(View.VISIBLE);
-            closenessBar.setVisibility(View.VISIBLE);
-            intImportanceBar.setVisibility(View.VISIBLE);
-            extImportanceBar.setVisibility(View.VISIBLE);
-            clearnessBar.setVisibility(View.VISIBLE);
+            for (Slider slider : flyCharacteristicsRanges) {
+                slider.setVisibility(View.VISIBLE);
+            }
         }
-    }
-
-    private int booleanToInt(boolean isChecked) {
-        int isCheckedInt = (isChecked) ? 1 : 0;
-        return isCheckedInt;
     }
 
     private void calculateValues(View checkBoxView) {
         if (isRangeEnabled) {
             switch (checkBoxView.getId()) {
                 case R.id.intImportance:
-                    intImportanceValue = (int) intImportanceBar.getExactValue();
+                    intImportanceValue = (intImportance.isChecked()) ? (int) intImportanceBar.getExactValue() : 0;
                     break;
                 case R.id.extImportance:
-                    extImportanceValue = (int) extImportanceBar.getExactValue();
+                    extImportanceValue = (extImportance.isChecked()) ? (int) extImportanceBar.getExactValue() : 0;
                     break;
                 case R.id.simplicity:
-                    simplicityValue = (int) simplicityBar.getExactValue();
+                    simplicityValue = (simplicity.isChecked()) ? (int) simplicityBar.getExactValue() : 0;
                     break;
                 case R.id.clearness:
-                    clearnessValue = (int) clearnessBar.getExactValue();
+                    clearnessValue = (clearness.isChecked()) ? (int) clearnessBar.getExactValue() : 0;
                     break;
                 case R.id.closeness:
-                    closenessValue = (int) closenessBar.getExactValue();
+                    closenessValue = (closeness.isChecked()) ? (int) closenessBar.getExactValue() : 0;
             }
         } else {
             switch (checkBoxView.getId()) {
                 case R.id.intImportance:
-                    intImportanceValue = Integer.parseInt(prefs.get("intImportanceWeightPref").toString());
+                    intImportanceValue = (intImportance.isChecked()) ? Integer.parseInt(prefs.get("intImportanceWeightPref").toString()) : 0;
                     break;
                 case R.id.extImportance:
-                    extImportanceValue = Integer.parseInt(prefs.get("extImportanceWeightPref").toString());
+                    extImportanceValue = (extImportance.isChecked()) ? Integer.parseInt(prefs.get("extImportanceWeightPref").toString()) : 0;
                     break;
                 case R.id.simplicity:
-                    simplicityValue = Integer.parseInt(prefs.get("simplicityWeightPref").toString());
+                    simplicityValue = (simplicity.isChecked()) ? Integer.parseInt(prefs.get("simplicityWeightPref").toString()) : 0;
                     break;
                 case R.id.clearness:
-                    clearnessValue = Integer.parseInt(prefs.get("clearnessWeightPref").toString());
+                    clearnessValue = (clearness.isChecked()) ? Integer.parseInt(prefs.get("clearnessWeightPref").toString()) : 0;
                     break;
                 case R.id.closeness:
-                    closenessValue = Integer.parseInt(prefs.get("closenessWeightPref").toString());
+                    closenessValue = (closeness.isChecked()) ? Integer.parseInt(prefs.get("closenessWeightPref").toString()) : 0;
             }
         }
     }
@@ -296,11 +336,9 @@ public class TaskFragment extends BaseMenuFragment {
         TextView flyScoreView = (TextView) fragmentView.findViewById(R.id.fly_score);
         flyScore = intImportanceValue + extImportanceValue + simplicityValue +
                 clearnessValue + closenessValue;
-        if (flyScore > 0) {
-            flyScoreView.setText(flyScore + "");
-        }
-    }
 
+        flyScoreView.setText(flyScore + "");
+    }
 
     private TaskAction recommendAction() {
         if (!intImportance.isChecked() && !extImportance.isChecked()) {
@@ -326,43 +364,57 @@ public class TaskFragment extends BaseMenuFragment {
     }
 
     private void getTaskValues() {
+        taskId.setText("ID: " + loadedTask.getTaskId());
         name.setText(loadedTask.getName());
         description.setText(loadedTask.getDescription());
         desiredOutcome.setText(loadedTask.getDesiredOutcome());
         notes.setText(loadedTask.getNotes());
-//        assignedUser.setSelection();
         actionSpinner.setSelection(loadedTask.getTakenAction());
 
+        if (loadedTask.getTakenAction() == TaskAction.SCHEDULE_DEFER.getIndex()) {
+            lastResponsibleMoment.setText(sdf.format(loadedTask.getLastResponsibleMoment()));
+            performUiChangesOnActionChanged(loadedTask.getTakenAction(), null, lastResponsibleMoment);
+        }
+
 //        //fly characteristics
-        intImportanceValue = (loadedTask.getIntImportance() != null) ? loadedTask.getIntImportance().intValue() : 0;
+        intImportanceValue = (loadedTask.getIntImportance() != null) ? loadedTask.getIntImportance() : 0;
         if (intImportanceValue > 0) {
             intImportance.setChecked(true);
             intImportanceBar.setValue(intImportanceValue, false);
         }
 
-        extImportanceValue = (loadedTask.getExtImportance() != null) ? loadedTask.getExtImportance().intValue() : 0;
+        extImportanceValue = (loadedTask.getExtImportance() != null) ? loadedTask.getExtImportance() : 0;
         if (extImportanceValue > 0) {
             extImportance.setChecked(true);
             intImportanceBar.setValue(extImportanceValue, false);
         }
 
-        simplicityValue = (loadedTask.getSimplicity() != null) ? loadedTask.getSimplicity().intValue() : 0;
+        simplicityValue = (loadedTask.getSimplicity() != null) ? loadedTask.getSimplicity() : 0;
         if (simplicityValue > 0) {
             simplicity.setChecked(true);
             simplicityBar.setValue(simplicityValue, false);
         }
 
-        clearnessValue = (loadedTask.getClearness() != null) ? loadedTask.getCloseness().intValue() : 0;
+        clearnessValue = (loadedTask.getClearness() != null) ? loadedTask.getClearness() : 0;
         if (clearnessValue > 0) {
             clearness.setChecked(true);
             clearnessBar.setValue(clearnessValue, false);
         }
 
-        closenessValue = (loadedTask.getCloseness() != null) ? loadedTask.getCloseness().intValue() : 0;
+        closenessValue = (loadedTask.getCloseness() != null) ? loadedTask.getCloseness() : 0;
         if (closenessValue > 0) {
             closeness.setChecked(true);
             closenessBar.setValue(closenessValue, false);
         }
+
+        flyScore = loadedTask.getFlyScore();
+
+
+        if (loadedTask.getDateCreated() != null) {
+            dateCreated.setText(sdf.format(loadedTask.getDateCreated()));
+        }
+
+
     }
 
     private void setTaskValues() {
@@ -371,7 +423,7 @@ public class TaskFragment extends BaseMenuFragment {
         loadedTask.setDesiredOutcome(desiredOutcome.getText().toString());
         loadedTask.setNotes(notes.getText().toString());
 
-//        loadedTask.setAccount(myself);
+        loadedTask.setAccount(UserManager.getLoggedAccount());
 //        loadedTask.setProject((Project) projectSpinner.getSelectedItem());
 //
 
@@ -382,24 +434,29 @@ public class TaskFragment extends BaseMenuFragment {
         loadedTask.setClearness(clearnessValue);
         loadedTask.setSimplicity(simplicityValue);
         loadedTask.setFlyScore(flyScore);
-//        Account user = (Account) assignedUser.getSelectedItem();
-//        if (actionSpinner.getSelectedItem().toString().equals(TaskAction.DELEGATE_FOLLOW_UP.toString())) {
-//            loadedTask.setDelegatedTo(user.getAccountId());
-//        }
-//
-//        if (actionSpinner.getSelectedItem().toString().equals(TaskAction.TRANSFER_NOTIFY.toString())) {
-//            loadedTask.setTransferedTo(user.getAccountId());
-//        }
+//        assignedUserId = assignedUserId.substring(assignedUserId.indexOf("[") + 1, assignedUserId.indexOf("]"));
+        if (assignedUser !=null) {
+            String assignedUserId = getItemId(assignedUser.getSelectedItem());
+            if (assignedUserId.length() > 0) {
+                if (actionSpinner.getSelectedItem().toString().equals(TaskAction.DELEGATE_FOLLOW_UP.toString())) {
+                    loadedTask.setDelegatedTo(Long.parseLong(assignedUserId));
+                }
 
-//        Task dependentTask = (Task) dependentTaskSpinner.getSelectedItem();
-//        loadedTask.setDependOn(dependentTask.getTaskId());
-
+                if (actionSpinner.getSelectedItem().toString().equals(TaskAction.TRANSFER_NOTIFY.toString())) {
+                    loadedTask.setTransferedTo(Long.parseLong(assignedUserId));
+                }
+            }
+        }
+        String dependentTaskId = getItemId(dependentTaskSpinner.getSelectedItem());
+        if (dependentTaskId.length() > 0) {
+            loadedTask.setDependOn(Long.parseLong(dependentTaskId));
+        }
 
         loadedTask.setEventId(eventId);
 //        loadedTask.setStatus();
         loadedTask.setTakenAction(actionSpinner.getSelectedItemPosition());
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+
         try {
             if (!deadline.getText().toString().equals("")) {
                 loadedTask.setDeadline(sdf.parse(deadline.getText().toString()));
@@ -418,10 +475,28 @@ public class TaskFragment extends BaseMenuFragment {
         }
     }
 
+    private String getItemId(Object object) {
+        String item = (String) object;
+        if (item.indexOf("[") > -1 && item.indexOf("]") > -1) {
+            item = item.substring(item.indexOf("[") + 1, item.indexOf("]"));
+            return item;
+        } else {
+            return "";
+        }
+    }
+
     private void saveTask() {
         setTaskValues();
         addTaskToCalendar();
-        Gson gson = new Gson();
+        postTaskToServer();
+    }
+
+    private void postTaskToServer() {
+
+        GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+        gsonBuilder.registerTypeAdapter(Date.class, new DateSerializer());
+        Gson gson = gsonBuilder.create();
+
 
         BaseGsonRequest<Task> taskPostRequest = new BasePostRequest<Task>(getActivity(), ApiConstants.TASK_API_METHOD,
                 gson.toJson(loadedTask), new RequestErrorListener(getActivity(), null)) {
@@ -535,13 +610,33 @@ public class TaskFragment extends BaseMenuFragment {
                 new Response.Listener<Account[]>() {
                     @Override
                     public void onResponse(Account[] response) {
+                        Long assignedUserId = -1l;
+
+                        if (loadedTask != null && loadedTask.getTakenAction() > 0) {
+                            if (loadedTask.getTakenAction() == TaskAction.TRANSFER_NOTIFY.getIndex()) {
+                                assignedUserId = loadedTask.getTransferedTo();
+                            } else if (loadedTask.getDelegatedTo() == TaskAction.DELEGATE_FOLLOW_UP.getIndex()) {
+                                assignedUserId = loadedTask.getDelegatedTo();
+                            }
+                        }
+
                         mUsers.addAll(Arrays.asList(response));
                         Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
+                        int position = -1;
                         for (Account acc : mUsers) {
                             strings.add(acc != null ? acc.toString() : null);
+                            if (acc.getAccountId() == assignedUserId) {
+                                position = mUsers.indexOf(acc);
+                            }
                         }
-                        Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
-                        assignedUser = setSpinner(R.id.assignedUser, strings);
+
+                        if (isFragmentUIActive()) {
+                            assignedUser = setSpinner(R.id.assignedUser, strings);
+                            if (loadedTask != null && position > -1) {
+                                assignedUser.setSelection(position);
+                                performUiChangesOnActionChanged(loadedTask.getTakenAction(), assignedUser, null);
+                            }
+                        }
                     }
                 });
     }
@@ -568,7 +663,10 @@ public class TaskFragment extends BaseMenuFragment {
                             strings.add(project != null ? project.toString() : null);
                         }
                         Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
-                        projectSpinner = setSpinner(R.id.project, strings);
+                        if (isFragmentUIActive()) {
+                            //TODO: get selected project from loaded task
+                            projectSpinner = setSpinner(R.id.project, strings);
+                        }
                     }
                 }
         );
@@ -597,10 +695,17 @@ public class TaskFragment extends BaseMenuFragment {
                             strings.add(task != null ? task.toString() : null);
                         }
                         Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
-                        dependentTaskSpinner = setSpinner(R.id.dependOn, strings);
+                        if (isFragmentUIActive()) {
+                            //TODO: get dependent task project from loaded task
+                            dependentTaskSpinner = setSpinner(R.id.dependOn, strings);
+                        }
                     }
                 }
         );
+    }
+
+    public boolean isFragmentUIActive() {
+        return isAdded() && !isDetached() && !isRemoving();
     }
 
     private class CheckBoxListener implements View.OnClickListener {
@@ -611,10 +716,10 @@ public class TaskFragment extends BaseMenuFragment {
             calculateFlyScore();
             TaskAction recommendAction = recommendAction();
             loadedTask.setRecommendedAction(recommendAction.getIndex());
-//            TextView recommendedAction = (TextView) fragmentView.findViewById(R.id.recommended_action);
-//            recommendedAction.setText(recommendAction.toString());
-            Spinner actionSpinner = (Spinner) fragmentView.findViewById(R.id.actionSpinner);
-            actionSpinner.setSelection(recommendAction.getIndex());
+            TextView recommendedAction = (TextView) fragmentView.findViewById(R.id.recommendedAction);
+            recommendedAction.setText(recommendAction.toString());
+//            Spinner actionSpinner = (Spinner) fragmentView.findViewById(R.id.actionSpinner);
+//            actionSpinner.setSelection(recommendAction.getIndex());
         }
     }
 

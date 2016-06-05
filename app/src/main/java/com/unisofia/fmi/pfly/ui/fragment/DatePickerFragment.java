@@ -17,6 +17,8 @@ import java.util.Locale;
 
 public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
+    public static final String DATE_FORMAT_PATTERN = "dd.MM.yy";
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Calendar c = Calendar.getInstance();
@@ -62,7 +64,7 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
         Log.d("Martin", "onDateSet");
         Calendar c = Calendar.getInstance();
         c.set(year, month, day);
-        String dateFormat = "MM/dd/yy"; //In which you need put here
+        String dateFormat = DATE_FORMAT_PATTERN; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
         dateEditText.setText(sdf.format(c.getTime()));
     }

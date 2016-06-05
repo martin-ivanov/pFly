@@ -8,7 +8,7 @@ public class GcmConstants {
 
 	public static final String DEBUG_TAG = "GCM";
 
-	public static final String SENDER_ID = "729430799768";
+	public static final String SENDER_ID = "552278709450";
 
 	public static final String GCM_PREFS = "gcmPreferences";
 

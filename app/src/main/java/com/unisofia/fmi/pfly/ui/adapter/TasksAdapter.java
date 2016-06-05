@@ -30,12 +30,15 @@ import com.unisofia.fmi.pfly.ui.filter.ClosenessCriteria;
 import com.unisofia.fmi.pfly.ui.filter.Criteria;
 import com.unisofia.fmi.pfly.ui.filter.ExtImportanceCriteria;
 import com.unisofia.fmi.pfly.ui.filter.IntImportanceCriteria;
+import com.unisofia.fmi.pfly.ui.filter.NameCriteria;
 import com.unisofia.fmi.pfly.ui.filter.SimplicityCriteria;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TasksAdapter extends BaseAdapter implements Filterable {
 
@@ -213,35 +216,48 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
     }
 
     class TaskFilter extends Filter {
+        private Set<Criteria> criterias = new HashSet<>();
+
+        private String setCriteria(String constraint) {
+            try {
+                int id = Integer.parseInt(constraint);
+                switch (id) {
+                    case R.id.intImportanceFilter:
+                        criterias.add(IntImportanceCriteria.getInstance());
+                        break;
+                    case R.id.extImportanceFilter:
+                        criterias.add(ExtImportanceCriteria.getInstance());
+                        break;
+                    case R.id.clearnessFilter:
+                        criterias.add(ClearnessCriteria.getInstance());
+                        break;
+                    case R.id.closenessFilter:
+                        criterias.add(ClosenessCriteria.getInstance());
+                        break;
+                    case R.id.simplicityFilter:
+                        criterias.add(SimplicityCriteria.getInstance());
+                        break;
+                }
+            } catch (NumberFormatException nfe) {
+                criterias.add(NameCriteria.getInstance());
+                return constraint;
+            }
+            return "";
+        }
+
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
-            List<Criteria> criterias = new ArrayList<>();
+
             if (constraint != null && constraint.length() > 0) {
                 String[] constraints = constraint.toString().split(",");
-
-                int id;
+                String filterString = "";
                 for (int i = 0; i < constraints.length; i++) {
-                    id = Integer.parseInt(constraints[i]);
-                    if (id == R.id.intImportanceFilter) {
-                        criterias.add(new IntImportanceCriteria());
-                    }
-                    if (id == R.id.extImportanceFilter) {
-                        criterias.add(new ExtImportanceCriteria());
-                    }
-                    if (id == R.id.clearness) {
-                        criterias.add(new ClearnessCriteria());
-                    }
-                    if (id == R.id.closeness) {
-                        criterias.add(new ClosenessCriteria());
-                    }
-                    if (id == R.id.simplicity) {
-                        criterias.add(new SimplicityCriteria());
-                    }
+                    filterString = setCriteria(constraints[i]);
                 }
 
                 Criteria endCriteria = new AndCriteria(criterias);
-                List<Task> taskList = endCriteria.meetCriteria(originalTasks);
+                List<Task> taskList = endCriteria.meetCriteria(originalTasks, filterString);
 
                 results.count = taskList.size();
                 results.values = taskList;

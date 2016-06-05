@@ -205,6 +205,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <TextView
+            android:id="@+id/recommendedAction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+
         <com.rey.material.widget.Spinner
             android:id="@+id/actionSpinner"
             android:layout_width="match_parent"

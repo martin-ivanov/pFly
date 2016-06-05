@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.ui.fragment.ProgressDialogFragment;
@@ -48,7 +49,12 @@ public abstract class BaseActivity extends AppCompatActivity{
 
 	public void hideProgress() {
 		if (mIsProgressShown) {
-			mProgressDialogFragment.dismiss();
+			try {
+				mProgressDialogFragment.dismiss();
+			}catch(Exception ex){
+				Log.d("FRAGMENT DISMISS", "failure");
+			}
+
 			mIsProgressShown = false;
 		}
 	}

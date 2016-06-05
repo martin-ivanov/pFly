@@ -46,7 +46,9 @@ public abstract class BasePostRequest<T> extends BaseGsonRequest<T> {
 
 	@Override
 	public byte[] getBody() throws AuthFailureError {
-		Log.d("POST TASK", jsonBody);
+		if (jsonBody != null) {
+			Log.d("POST TASK", jsonBody);
+		}
 		return jsonBody.getBytes();
 	}
 //

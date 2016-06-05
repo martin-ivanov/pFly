@@ -3,12 +3,14 @@ package com.unisofia.fmi.pfly.api.model;
 import com.unisofia.fmi.pfly.R;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Task implements Serializable {
 	private static final long serialVersionUID = 1L;
+
 	private Long taskId;
 	private String name;
 	private String notes;
@@ -245,13 +247,14 @@ public class Task implements Serializable {
 	}
 
 	public enum TaskAction {
-		TRASH_NOTIFY("Trash & Notify", R.color.taskDarkBlue, 0),
-		TRANSFER_NOTIFY("Transfer & Notify", R.color.taskLightBlue, 1),
-		DELEGATE_FOLLOW_UP("Delegate & follow-up", R.color.taskDarkGreen, 2),
-		SCHEDULE_DEFER("Schedule & Defer", R.color.taskLightGreen, 3),
-		CLARIFY("Clarify", R.color.taskOrange, 4),
-		SIMPLIFY("Simplify", R.color.taskOrange, 5),
-		EXECUTE("Execute", R.color.taskRed, 6);
+		NO_ACTION("No action", R.color.fab_material_white, 0),
+		TRASH_NOTIFY("Trash & Notify", R.color.taskDarkBlue, 1),
+		TRANSFER_NOTIFY("Transfer & Notify", R.color.taskLightBlue, 2),
+		DELEGATE_FOLLOW_UP("Delegate & follow-up", R.color.taskDarkGreen, 3),
+		SCHEDULE_DEFER("Schedule & Defer", R.color.taskLightGreen, 4),
+		CLARIFY("Clarify", R.color.taskOrange, 5),
+		SIMPLIFY("Simplify", R.color.taskOrange, 6),
+		EXECUTE("Execute", R.color.taskRed, 7);
 
 		private static Map<Integer, TaskAction> map = new HashMap<>();
 		static {

@@ -3,27 +3,43 @@ package com.unisofia.fmi.pfly.ui.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.unisofia.fmi.pfly.R;
+import com.android.volley.Response;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.google.gson.Gson;
+import com.unisofia.fmi.pfly.PFlyApp;
+import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.api.ApiConstants;
+import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Account;
+import com.unisofia.fmi.pfly.api.request.BaseGsonRequest;
+import com.unisofia.fmi.pfly.api.request.RequestErrorListener;
+import com.unisofia.fmi.pfly.api.request.post.BasePostRequest;
+import com.unisofia.fmi.pfly.notification.gcm.util.GcmConstants;
+import com.unisofia.fmi.pfly.notification.gcm.util.GcmUtil;
 
-public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks,
-        OnConnectionFailedListener {
+import java.io.IOException;
+import java.util.Map;
+
+public class WelcomeActivity extends BaseActivity{
 
     private static Context mContext;
 
@@ -32,81 +48,67 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
         return mContext;
     }
 
-    private static final int RC_SIGN_IN = 0;
+    private GoogleCloudMessaging mGoogleCloudMessaging;
+    private String mRegId;
 
-    private GoogleApiClient mGoogleApiClient;
-    private boolean mIntentInProgress;
-    private boolean signedInUser;
-    private boolean mSignInClicked;
-    private ConnectionResult mConnectionResult;
-    private SignInButton signinButton;
+    private Button loginButton;
     private TextView username, emailLabel;
-    private LinearLayout accountFrame, signinFrame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-/*		if (UserManager.isUserLoggedIn()) {
-            Intent intent = new Intent(this, HomeActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-			startActivity(intent);
-
-			return;
-		}*/
-
         setContentView(R.layout.activity_welcome);
         mContext = getApplicationContext();
         setPrefs();
 
-
-        signinButton = (SignInButton) findViewById(R.id.signin);
-        signinButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                googlePlusLogin();
-            }
-        });
-
         username = (TextView) findViewById(R.id.username);
         emailLabel = (TextView) findViewById(R.id.email);
-        accountFrame = (LinearLayout) findViewById(R.id.profileFrame);
-        signinFrame = (LinearLayout) findViewById(R.id.signinFrame);
-        showHome();
+        loginButton = (Button) findViewById(R.id.login);
 
-//        mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                .addConnectionCallbacks(this)
-//                .addOnConnectionFailedListener(this)
-//                .addApi(Plus.API, Plus.PlusOptions.builder().build())
-//                .addScope(Plus.SCOPE_PLUS_LOGIN).build();
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                registerInBackground();
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (UserManager.getLoggedUser() != null){
+        if (UserManager.getLoggedUser() != null) {
             showHome();
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
+    private void saveAccountToBackend() {
+        Gson gson = new Gson();
+        BaseGsonRequest<Account> accountPostRequest = new BasePostRequest<Account>(this, ApiConstants.ACCOUNT_API_METHOD,
+                gson.toJson(UserManager.getLoggedAccount()), new RequestErrorListener(this, null)) {
+            @Override
+            protected Map<String, String> getPostParams() {
+                return null;
+            }
+
+            @Override
+            protected Class<Account> getResponseClass() {
+                return Account.class;
+            }
+        };
+
+        RequestManager.sendRequest(this, null, accountPostRequest, new Response.Listener<Account>() {
+            @Override
+            public void onResponse(Account response) {
+                Toast.makeText(WelcomeActivity.this, "Account saved.", Toast.LENGTH_SHORT).show();
+                Log.d("Response account: ", response.toString());
+                UserManager.loginUser(response);
+                showHome();
+            }
+        });
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        signedInUser = false;
-        Toast.makeText(this, "Connected", Toast.LENGTH_LONG).show();
-        getAccountInformation();
-        showHome();
-    }
-
-
-    private void showHome(){
+    private void showHome() {
         Intent intent = new Intent(this, HomeActivity.class);
         startActivity(intent);
     }
@@ -121,87 +123,75 @@ public class WelcomeActivity extends BaseActivity implements ConnectionCallbacks
         PreferenceManager.setDefaultValues(this, R.xml.pref_simplicity, true);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int responseCode,
-                                    Intent intent) {
-        if (requestCode == RC_SIGN_IN) {
-            if (responseCode != RESULT_OK) {
-                mSignInClicked = false;
+//    private void registerGcmIfNeeded() {
+//        if (GcmUtil.checkPlayServices(this)) {
+//            mGoogleCloudMessaging = GoogleCloudMessaging.getInstance(this);
+//
+//            //Always register on google login
+//            registerInBackground();
+//        } else {
+//            Log.i(GcmConstants.DEBUG_TAG, "No valid Google play APK found");
+//        }
+//    }
+
+    private void registerInBackground() {
+        new AsyncTask<Void, Void, String>() {
+
+            @Override
+            protected void onPreExecute() {
+                showProgress();
             }
 
-            mIntentInProgress = false;
+            @Override
+            protected String doInBackground(Void... params) {
+                String msg = "";
+                try {
+                    if (mGoogleCloudMessaging == null) {
+                        mGoogleCloudMessaging = GoogleCloudMessaging.getInstance(PFlyApp.getAppContext());
+                    }
+                    int retryCount = 0;
+                    while (mRegId == null  && retryCount < 5) {
+                        mRegId = mGoogleCloudMessaging.register(GcmConstants.SENDER_ID);
+                        retryCount++;
+                    }
+                    msg = "Device registered, regId = " + mRegId;
+                    GcmUtil.storeRegistrationId(PFlyApp.getAppContext(), mRegId);
+                } catch (IOException ex) {
+                    msg = "Error: " + ex.getMessage();
+                }
 
-            if (!mGoogleApiClient.isConnecting()) {
-                mGoogleApiClient.connect();
+                return msg;
             }
-        }
-    }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        if (!connectionResult.hasResolution()) {
-            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), this, 0).show();
-            return;
-        }
-        if (!mIntentInProgress) {
-            // store mConnectionResult
-            mConnectionResult = connectionResult;
-            if (signedInUser) {
-                resolveSignInError();
+            @Override
+            protected void onPostExecute(String s) {
+                hideProgress();
+                getAccountInformation();
+                saveAccountToBackend();
             }
-        }
+        }.execute(null, null, null);
     }
-
-
-
-    private void googlePlusLogin() {
-        mGoogleApiClient.connect();
-        if (!mGoogleApiClient.isConnecting()) {
-            mSignInClicked = true;
-            resolveSignInError();
-        }
-
-
-    }
-
 
     private void getAccountInformation() {
         try {
+            String personName = "";
+            String email = "";
 
-            if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
-                Person currentPerson = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
-                String personName = currentPerson.getDisplayName();
-                String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
-                username.setText(personName);
-                emailLabel.setText(email);
+            personName = "Martin Ivanov";
+            email = "ivanov9237@gmail.com";
 
-                Account account = new Account();
-                account.setName(personName);
-                account.setEmail(email);
-                UserManager.loginUser(account);
-            }
+            username.setText(personName);
+            emailLabel.setText(email);
+
+            Account account = new Account();
+            account.setName(personName);
+            account.setEmail(email);
+            account.setDeviceId(mRegId);
+
+            UserManager.loginUser(account);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-    private void resolveSignInError() {
-
-        if (mConnectionResult.hasResolution()) {
-            try {
-                mIntentInProgress = true;
-                mConnectionResult.startResolutionForResult(this, RC_SIGN_IN);
-            } catch (IntentSender.SendIntentException e) {
-                mIntentInProgress = false;
-                mGoogleApiClient.connect();
-            }
-        }
-    }
-
 
 }

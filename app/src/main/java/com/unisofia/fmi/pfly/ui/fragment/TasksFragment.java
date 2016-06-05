@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.SearchView;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -38,11 +39,14 @@ public class TasksFragment extends BaseMenuFragment {
     private ListView mTasksListView;
     private TasksAdapter mTasksAdapter;
 
-    OnTaskSelectedListener mListener;
-    CoordinatorLayout rootLayout;
-    FloatingActionButton fabBtn;
-    Dialog filterDialog;
-    List<CheckBox> listFilterCriteria;
+
+    private SearchView mSearchView;
+    private MenuItem searchMenuItem;
+    private OnTaskSelectedListener mListener;
+    private CoordinatorLayout rootLayout;
+    private FloatingActionButton fabBtn;
+    private Dialog filterDialog;
+    private List<CheckBox> listFilterCriteria;
 
     @Override
     public void onAttach(Context context) {
@@ -68,8 +72,11 @@ public class TasksFragment extends BaseMenuFragment {
         listFilterCriteria = initFilterDialog(filterDialog);
     }
 
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_pfly_tasks_options, menu);
+        searchMenuItem = menu.findItem(R.id.action_search);
+        mSearchView = (SearchView) searchMenuItem.getActionView();
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -92,10 +99,20 @@ public class TasksFragment extends BaseMenuFragment {
             case R.id.filter_tasks:
                 filterTasks();
                 return true;
+            case R.id.action_search:
+                searchTasks();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+//    private void setItemsVisibility(Menu menu, MenuItem exception, boolean visible) {
+//        for (int i=0; i<menu.size(); ++i) {
+//            MenuItem item = menu.getItem(i);
+//            if (item != exception) item.setVisible(visible);
+//        }
+//    }
 
     private String setCriteria(List<CheckBox> listCheckBox) {
         StringBuilder criteria = new StringBuilder();
@@ -249,15 +266,47 @@ public class TasksFragment extends BaseMenuFragment {
             @Override
             public void onClick(View v) {
                 filterDialog.dismiss();
+                StringBuilder criteriaQuery = new StringBuilder();
+                criteriaQuery.append(setCriteria(listFilterCriteria));
+                if (mSearchView.getQuery().length()>0){
+                    criteriaQuery.append(mSearchView.getQuery());
+                }
                 mTasksAdapter.getFilter()
-                        .filter(setCriteria(listFilterCriteria));
+                        .filter(criteriaQuery);
             }
         });
         filterDialog.show();
     }
 
     private void searchTasks(){
+//        searchMenuItem.setVisible(true);
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String newText) {
+//                Toast.makeText(getActivity(), newText, Toast.LENGTH_LONG).show();
+                StringBuilder criteriaQuery = new StringBuilder();
+                if (setCriteria(listFilterCriteria).length()>0){
+                    criteriaQuery.append(setCriteria(listFilterCriteria));
+                }
+                criteriaQuery.append(newText);
+                mTasksAdapter.getFilter()
+                        .filter(criteriaQuery);
+                return false;
+            }
+        });
+        mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                mTasksAdapter.getFilter()
+                        .filter(setCriteria(listFilterCriteria));
+                return false;
+            }
+        });
     }
 
     // Container Activity must implement this interface
