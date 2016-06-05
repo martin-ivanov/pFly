@@ -55,17 +55,24 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
         mContext = context;
     }
 
-    public TasksAdapter(final Context context) {
+    public TasksAdapter(final Context context, Long projectId) {
         mTasks = new ArrayList<>();
         mContext = context;
         mSelectedItemsIds = new SparseBooleanArray();
-        fetchTasks();
+        fetchTasks(projectId);
     }
 
-    public void fetchTasks() {
+    public void fetchTasks(Long projectId) {
+        StringBuilder sb = new StringBuilder();
+        if (projectId !=null){
+            sb.append(ApiConstants.PROJECT_API_METHOD).append("/").append(projectId);
+        }
+        sb.append(ApiConstants.TASK_API_METHOD);
+
+
         BaseGsonRequest<Task[]> taskGetRequest = new BaseGetRequest<>(
                 mContext,
-                ApiConstants.TASK_API_METHOD,
+                sb.toString(),
                 null,
                 Task[].class,
                 new RequestErrorListener(mContext, null)

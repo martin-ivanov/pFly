@@ -1,10 +1,12 @@
 package com.unisofia.fmi.pfly.ui.adapter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,11 +31,43 @@ public class ProjectsAdapter extends BaseAdapter {
 
 
     private List<Project> mProjects;
+    private Context mContext;
 
-    public ProjectsAdapter(List<Project> projects) {
+    public ProjectsAdapter(List<Project> projects, Context context) {
         mProjects = projects;
+        mContext = context;
     }
 
+    public ProjectsAdapter(final Context context) {
+        mProjects = new ArrayList<>();
+        mContext = context;
+        fetchProjects();
+    }
+
+    private void fetchProjects() {
+        BaseGsonRequest<Project[]> projectsGetRequest = new BaseGetRequest<>(
+                mContext,
+                ApiConstants.PROJECT_API_METHOD,
+                null,
+                Project[].class,
+                new RequestErrorListener(mContext, null)
+        );
+
+        RequestManager.sendRequest(
+                mContext,
+                null,
+                projectsGetRequest,
+                new Response.Listener<Project[]>() {
+                    @Override
+                    public void onResponse(Project[] response) {
+                        mProjects.clear();
+                        mProjects.addAll(Arrays.asList(response));
+                        Toast.makeText(mContext, "Response successful", Toast.LENGTH_SHORT).show();
+                        notifyDataSetChanged();
+                    }
+                });
+
+    }
 
     public ProjectsAdapter() {
         super();
@@ -42,8 +76,6 @@ public class ProjectsAdapter extends BaseAdapter {
     public List<Project> getProjecs() {
         return mProjects;
     }
-
-
 
 
     @Override
@@ -58,7 +90,7 @@ public class ProjectsAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return mProjects.get(position).getId();
+        return mProjects.get(position).getProjectId();
     }
 
     @Override

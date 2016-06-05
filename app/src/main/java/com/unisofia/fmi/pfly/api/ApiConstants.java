@@ -6,10 +6,8 @@ public class ApiConstants {
 		// forbid instantiation
 	}
 
-	public static final String API_BASE_URL = "http://1dad6893.ngrok.io/rest/api";
+	public static final String API_BASE_URL = "http://43b8e160.ngrok.io/rest/api";
 	public static final String PROJECT_API_METHOD = "/projects";
 	public static final String ACCOUNT_API_METHOD = "/accounts";
 	public static final String TASK_API_METHOD = "/tasks";
-
-
 }

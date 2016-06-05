@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -47,6 +48,7 @@ public class TasksFragment extends BaseMenuFragment {
     private FloatingActionButton fabBtn;
     private Dialog filterDialog;
     private List<CheckBox> listFilterCriteria;
+    private Long projectId;
 
     @Override
     public void onAttach(Context context) {
@@ -90,7 +92,7 @@ public class TasksFragment extends BaseMenuFragment {
         switch (item.getItemId()) {
             case R.id.refresh_tasks:
                 listFilterCriteria = initFilterDialog(filterDialog);
-                mTasksAdapter.fetchTasks();
+                mTasksAdapter.fetchTasks(projectId);
                 return true;
             case R.id.sort_tasks:
                 sortTasks();
@@ -149,7 +151,11 @@ public class TasksFragment extends BaseMenuFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         fragmentView = view;
-
+        Bundle args = this.getArguments();
+        if (args != null) {
+            Log.d("Marto", args.toString());
+            projectId = args.getLong("projectId");
+        }
         rootLayout = (CoordinatorLayout) view.findViewById(R.id.rootLayout);
         fabBtn = (FloatingActionButton) view.findViewById(R.id.addTask);
         fabBtn.setOnClickListener(new View.OnClickListener() {
@@ -168,7 +174,7 @@ public class TasksFragment extends BaseMenuFragment {
 //        }
 //
 
-        mTasksAdapter = new TasksAdapter(getActivity());
+        mTasksAdapter = new TasksAdapter(getActivity(), projectId);
         mTasksListView = (ListView) fragmentView.findViewById(R.id.listview_tasks);
         mTasksListView.setAdapter(mTasksAdapter);
         mTasksListView.setOnItemClickListener(new OnItemClickListener() {

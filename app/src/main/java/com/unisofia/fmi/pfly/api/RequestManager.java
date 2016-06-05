@@ -33,10 +33,11 @@ public class RequestManager {
 
 			@Override
 			public void onResponse(T response) {
-				Log.d("Request", "===== Response =====");
-				Log.d("Request", "Reponse: " + response.toString());
-				Log.d("Request", "===== End of Response =====");
-
+				if (response != null) {
+					Log.d("Request", "===== Response =====");
+					Log.d("Request", "Response: " + response.toString());
+					Log.d("Request", "===== End of Response =====");
+				}
 				hideProgressDialogIfFromUi(context);
 
 				if (listener != null) {

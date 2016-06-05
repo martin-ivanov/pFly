@@ -19,6 +19,9 @@ public class UserManager {
     private static Context appContext = WelcomeActivity.getAppContext();
     private static SharedPreferences userPrefs = appContext.getSharedPreferences(USER_PREFS,
             Context.MODE_PRIVATE);
+
+    private static SharedPreferences gcmPrefs = appContext.getSharedPreferences(
+            GcmConstants.GCM_PREFS, Context.MODE_PRIVATE);
     private static Account loggedAccount;
     private static Long accountId;
     private static String accountName;
@@ -67,10 +70,9 @@ public class UserManager {
         editor.putString(KEY_USER_NAME, profile.getName());
         editor.putString(KEY_USER_EMAIL, profile.getEmail());
 
-        SharedPreferences gcmPreds = appContext.getSharedPreferences(
-                GcmConstants.GCM_PREFS, Context.MODE_PRIVATE);
-        Editor gcmEditor = gcmPreds.edit();
-        gcmEditor.remove(GcmConstants.PROPERTY_REG_ID);
+
+        Editor gcmEditor = gcmPrefs.edit();
+        gcmEditor.putString(GcmConstants.PROPERTY_REG_ID, profile.getDeviceId());
         gcmEditor.commit();
         return editor.commit();
     }
@@ -83,6 +85,10 @@ public class UserManager {
         editor.remove(KEY_USER_ID);
         editor.remove(KEY_USER_NAME);
         editor.remove(KEY_USER_EMAIL);
+
+        Editor gcmEditor = gcmPrefs.edit();
+        gcmEditor.remove(GcmConstants.PROPERTY_REG_ID);
+        gcmEditor.commit();
 
         loggedAccount = null;
         return editor.commit();

@@ -16,17 +16,20 @@ import android.widget.TextView;
 
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.api.model.Project;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.notification.reminder.ReminderService;
 import com.unisofia.fmi.pfly.ui.fragment.BaseMenuFragment;
 import com.unisofia.fmi.pfly.ui.fragment.MenuFragment;
 import com.unisofia.fmi.pfly.ui.fragment.MenuFragment.MenuListener;
+import com.unisofia.fmi.pfly.ui.fragment.ProjectsFragment;
 import com.unisofia.fmi.pfly.ui.fragment.ScaleFragment;
 import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
 import com.unisofia.fmi.pfly.ui.fragment.TasksFragment;
 
 @SuppressWarnings("deprecation")
 public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSelectedListener,
+        ProjectsFragment.OnProjectSelectedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout mDrawerLayout;
@@ -63,7 +66,7 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
 
         Intent serviceIntent = new Intent();
 //        serviceIntent.setAction("com.unisofia.fmi.pfly.notification.reminder.ReminderService");
-        startService(new Intent(getApplicationContext(), ReminderService.class));
+//        startService(new Intent(getApplicationContext(), ReminderService.class));
 
     }
 
@@ -135,6 +138,20 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
     }
 
     @Override
+    public void onProjectSelected(Project project) {
+        TasksFragment tasksFragment = new TasksFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("projectId", project.getProjectId());
+        tasksFragment.setArguments(args);
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, tasksFragment)
+                .addToBackStack(null)
+                .commit();
+        mCurrentitem = null;
+    }
+
+    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         if (mCurrentitem == item) {
             mDrawerLayout.closeDrawers();
@@ -143,9 +160,11 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
 
         BaseMenuFragment fragment = null;
         switch (item.getItemId()) {
-
             case R.id.nav_tasks:
                 fragment = new TasksFragment();
+                break;
+            case R.id.nav_projects:
+                fragment = new ProjectsFragment();
                 break;
             case R.id.nav_scale:
                 fragment = new ScaleFragment();
@@ -171,7 +190,6 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
             mCurrentitem = item;
             mDrawerLayout.closeDrawers();
         }
-
 
         return false;
     }

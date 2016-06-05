@@ -39,7 +39,7 @@ import com.unisofia.fmi.pfly.notification.gcm.util.GcmUtil;
 import java.io.IOException;
 import java.util.Map;
 
-public class WelcomeActivity extends BaseActivity{
+public class WelcomeActivity extends BaseActivity {
 
     private static Context mContext;
 
@@ -145,21 +145,22 @@ public class WelcomeActivity extends BaseActivity{
             @Override
             protected String doInBackground(Void... params) {
                 String msg = "";
-                try {
-                    if (mGoogleCloudMessaging == null) {
-                        mGoogleCloudMessaging = GoogleCloudMessaging.getInstance(PFlyApp.getAppContext());
-                    }
-                    int retryCount = 0;
-                    while (mRegId == null  && retryCount < 5) {
-                        mRegId = mGoogleCloudMessaging.register(GcmConstants.SENDER_ID);
-                        retryCount++;
-                    }
-                    msg = "Device registered, regId = " + mRegId;
-                    GcmUtil.storeRegistrationId(PFlyApp.getAppContext(), mRegId);
-                } catch (IOException ex) {
-                    msg = "Error: " + ex.getMessage();
+                if (mGoogleCloudMessaging == null) {
+                    mGoogleCloudMessaging = GoogleCloudMessaging.getInstance(PFlyApp.getAppContext());
                 }
+                int retryCount = 0;
+                while (mRegId == null && retryCount < 5) {
+                    try {
+                        mRegId = mGoogleCloudMessaging.register(GcmConstants.SENDER_ID);
+                    } catch (IOException ex) {
+                        msg = "Error: " + ex.getMessage();
+                    }
 
+                    retryCount++;
+                }
+                msg = "Device registered, regId = " + mRegId;
+                GcmUtil.storeRegistrationId(PFlyApp.getAppContext(), mRegId);
+                Log.d("Marto", msg);
                 return msg;
             }
 
@@ -174,14 +175,8 @@ public class WelcomeActivity extends BaseActivity{
 
     private void getAccountInformation() {
         try {
-            String personName = "";
-            String email = "";
-
-            personName = "Martin Ivanov";
-            email = "ivanov9237@gmail.com";
-
-            username.setText(personName);
-            emailLabel.setText(email);
+            String personName = username.getText().toString();
+            String email = emailLabel.getText().toString();
 
             Account account = new Account();
             account.setName(personName);

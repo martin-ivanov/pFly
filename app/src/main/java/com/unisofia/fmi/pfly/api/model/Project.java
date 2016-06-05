@@ -1,35 +1,42 @@
 package com.unisofia.fmi.pfly.api.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class Project implements Serializable {
 
 	private static final long serialVersionUID = -5059672515482196463L;
-	
-	private Long id;
-	private String name;
+
+	private Long projectId;
+	private Long creatorId;
+	private Date dateCreated;
 	private String description;
+	private String name;
 
-	public Project() {
-		id = 4545l;
-		name = "Project";
-		description = "Some description";
+	public Project() {}
+
+	public Long getProjectId() {
+		return projectId;
 	}
 
-	public Long getId() {
-		return id;
+	public void setProjectId(Long projectId) {
+		this.projectId = projectId;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public Long getCreatorId() {
+		return creatorId;
 	}
 
-	public String getName() {
-		return name;
+	public void setCreatorId(Long creatorId) {
+		this.creatorId = creatorId;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
 	}
 
 	public String getDescription() {
@@ -40,8 +47,16 @@ public class Project implements Serializable {
 		this.description = description;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	@Override
 	public String toString() {
-		return "[" + id + "] " + name;
+		return "[" + projectId + "] " + name;
 	}
 }
