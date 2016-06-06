@@ -148,8 +148,7 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
             holder.mActionIndicator.setColor(mContext.getResources().getColor(
                     Task.TaskAction.getAction(task.getTakenAction()).getColor()));
         }
-        //TODO: set value to 0 once there is a backend distribution of tasks
-        if (task.getFlyScore() > 10) {
+        if (task.getFlyScore() > 0) {
             holder.mFlyIndicator.setVisibility(View.VISIBLE);
         }
 
@@ -182,6 +181,8 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
                 notifyDataSetChanged();
             }
         });
+
+        //TODO remove event from calendar
     }
 
     public void toggleSelection(int position) {

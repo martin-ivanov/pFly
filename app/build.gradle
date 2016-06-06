@@ -37,4 +37,5 @@ dependencies {
     compile 'com.android.support:support-v4:23.2.1'
     compile 'com.github.rey5137:material:1.2.2'
     compile 'com.android.support:multidex:1.0.0'
+    compile 'joda-time:joda-time:2.9.2'
 }

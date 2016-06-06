@@ -44,7 +44,7 @@ public class ProjectsAdapter extends BaseAdapter {
         fetchProjects();
     }
 
-    private void fetchProjects() {
+    public void fetchProjects() {
         BaseGsonRequest<Project[]> projectsGetRequest = new BaseGetRequest<>(
                 mContext,
                 ApiConstants.PROJECT_API_METHOD,

@@ -3,16 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".PFlyApp">
     <item
-        android:id="@+id/repeat_task"
+        android:id="@+id/open_calendar_event"
         android:orderInCategory="100"
-        android:title="@string/action_repeat"
+        android:title="@string/action_event"
+        android:visible="false"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/reminder_task"
-        android:orderInCategory="100"
-        android:title="@string/action_reminder"
-        app:showAsAction="always" />
+    <!--<item-->
+        <!--android:id="@+id/reminder_task"-->
+        <!--android:orderInCategory="100"-->
+        <!--android:title="@string/action_reminder"-->
+        <!--app:showAsAction="always" />-->
     <item
         android:id="@+id/save_task"
         android:orderInCategory="100"

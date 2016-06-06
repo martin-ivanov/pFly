@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,6 +45,9 @@ import com.unisofia.fmi.pfly.api.request.get.BaseGetRequest;
 import com.unisofia.fmi.pfly.api.request.post.BasePostRequest;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
 
+import org.joda.time.LocalDate;
+import org.joda.time.Period;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,8 +56,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import static com.unisofia.fmi.pfly.api.model.Task.TaskAction;
+import static android.provider.CalendarContract.Events;
+import static android.provider.CalendarContract.Reminders;
+import static android.provider.CalendarContract.Calendars;
 
 public class TaskFragment extends BaseMenuFragment {
     private TextView taskId;
@@ -95,7 +104,7 @@ public class TaskFragment extends BaseMenuFragment {
 
     private Spinner actionSpinner;
     private int flyScore;
-    private long eventId;
+    private Long eventId;
 
     SimpleDateFormat sdf = new SimpleDateFormat(DatePickerFragment.DATE_FORMAT_PATTERN);
     private Map<String, ?> prefs = null;
@@ -121,21 +130,27 @@ public class TaskFragment extends BaseMenuFragment {
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_pfly_save_task, menu);
+        MenuItem eventOption = menu.findItem(R.id.open_calendar_event);
+        if (loadedTask != null && loadedTask.getEventId() != null) {
+            eventOption.setVisible(true);
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.repeat_task:
+            case R.id.open_calendar_event:
                 Intent eventIntent = new Intent(Intent.ACTION_VIEW);
                 eventIntent.setData(Uri.parse("content://com.android.calendar/events/"
                         + String.valueOf(loadedTask.getEventId())));
+                startActivity(eventIntent);
+                return true;
             case R.id.save_task:
                 saveTask();
                 return true;
-            case R.id.reminder_task:
-                setReminder();
-                return true;
+//            case R.id.reminder_task:
+//                setReminder();
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -149,6 +164,8 @@ public class TaskFragment extends BaseMenuFragment {
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity()).getAll();
         taskId = (TextView) view.findViewById(R.id.taskId);
         name = (EditText) view.findViewById(R.id.name);
+        name.requestFocus();
+
         description = (EditText) view.findViewById(R.id.description);
         notes = (EditText) view.findViewById(R.id.notes);
         desiredOutcome = (EditText) view.findViewById(R.id.desired_outcome);
@@ -185,11 +202,13 @@ public class TaskFragment extends BaseMenuFragment {
         }
     }
 
-    private void performUiChangesOnActionChanged(int position, Spinner assignedUser, EditText lastResponsibleMoment) {
-        if (assignedUser != null) {
-            assignedUser.setVisibility(View.GONE);
-            if (position == 2 || position == 3) {
-                assignedUser.setVisibility(View.VISIBLE);
+    private void performUiChangesOnActionChanged(Integer position, Spinner assignedUser, EditText lastResponsibleMoment) {
+        if (position != null) {
+            if (assignedUser != null) {
+                assignedUser.setVisibility(View.GONE);
+                if (position == 2 || position == 3) {
+                    assignedUser.setVisibility(View.VISIBLE);
+                }
             }
 
 
@@ -211,9 +230,9 @@ public class TaskFragment extends BaseMenuFragment {
         for (Slider slider : flyCharacteristicsRanges) {
             slider.setVisibility(View.GONE);
         }
-        if (loadedTask != null){
+        if (loadedTask != null && loadedTask.getDateFinished() != null) {
             dateFinished.setText(sdf.format(loadedTask.getDateFinished()));
-        }else{
+        } else {
             dateFinished.setText(sdf.format(Calendar.getInstance().getTime()));
         }
     }
@@ -414,6 +433,14 @@ public class TaskFragment extends BaseMenuFragment {
             dateCreated.setText(sdf.format(loadedTask.getDateCreated()));
         }
 
+        if (loadedTask.getDateFinished() != null) {
+            dateFinished.setText(sdf.format(loadedTask.getDateFinished()));
+        }
+
+        if (loadedTask.getDeadline() != null) {
+            deadline.setText(sdf.format(loadedTask.getDeadline()));
+        }
+
 
     }
 
@@ -435,7 +462,7 @@ public class TaskFragment extends BaseMenuFragment {
         loadedTask.setSimplicity(simplicityValue);
         loadedTask.setFlyScore(flyScore);
 //        assignedUserId = assignedUserId.substring(assignedUserId.indexOf("[") + 1, assignedUserId.indexOf("]"));
-        if (assignedUser !=null) {
+        if (assignedUser != null) {
             String assignedUserId = getItemId(assignedUser.getSelectedItem());
             if (assignedUserId.length() > 0) {
                 if (actionSpinner.getSelectedItem().toString().equals(TaskAction.DELEGATE_FOLLOW_UP.toString())) {
@@ -458,15 +485,16 @@ public class TaskFragment extends BaseMenuFragment {
 
 
         try {
-            if (!deadline.getText().toString().equals("")) {
-                loadedTask.setDeadline(sdf.parse(deadline.getText().toString()));
-            }
             if (!dateCreated.getText().toString().equals("")) {
                 loadedTask.setDateCreated(sdf.parse(dateCreated.getText().toString()));
             }
             if (!dateFinished.getText().toString().equals("")) {
                 loadedTask.setDateFinished(sdf.parse(dateFinished.getText().toString()));
             }
+            if (!deadline.getText().toString().equals("")) {
+                loadedTask.setDeadline(sdf.parse(deadline.getText().toString()));
+            }
+
             if (!lastResponsibleMoment.getText().toString().equals("")) {
                 loadedTask.setLastResponsibleMoment(sdf.parse(lastResponsibleMoment.getText().toString()));
             }
@@ -486,9 +514,30 @@ public class TaskFragment extends BaseMenuFragment {
     }
 
     private void saveTask() {
-        setTaskValues();
-        addTaskToCalendar();
-        postTaskToServer();
+        if (validateFields()) {
+            setTaskValues();
+            addTaskToCalendar();
+            postTaskToServer();
+        }
+    }
+
+    private boolean validateFields() {
+        String msg = "";
+        if (name.getText().toString().trim().equals("")) {
+            msg = "Name is requered";
+            name.setError(msg);
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (deadline.getText().toString().trim().equals("")) {
+            msg = "Deadline is required";
+            deadline.setError(msg);
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
     }
 
     private void postTaskToServer() {
@@ -521,59 +570,56 @@ public class TaskFragment extends BaseMenuFragment {
         });
     }
 
-    private void setReminder() {
-        ReminderFragment reminderFragment = new ReminderFragment();
-        Bundle args = new Bundle();
-        args.putString("taskName", name.getText().toString());
-        args.putString("taskDeadline", deadline.getText().toString());
-        reminderFragment.setArguments(args);
-        reminderFragment.show(getActivity().getSupportFragmentManager(), "ReminderDialog");
-    }
+//    private void setReminder() {
+//        ReminderFragment reminderFragment = new ReminderFragment();
+//        Bundle args = new Bundle();
+//        args.putString("taskName", name.getText().toString());
+//        args.putString("taskDeadline", deadline.getText().toString());
+//        reminderFragment.setArguments(args);
+//        reminderFragment.show(getActivity().getSupportFragmentManager(), "ReminderDialog");
+//    }
 
     private void addTaskToCalendar() {
-        ContentResolver cr = getActivity().getContentResolver();
 
-        if (loadedTask.getName() != null && loadedTask.getDeadline() != null) {
-//            String[] projection = new String[]{
-//                            CalendarContract.Calendars._ID,
-//                            CalendarContract.Calendars.NAME,
-//                            CalendarContract.Calendars.ACCOUNT_NAME,
-//                            CalendarContract.Calendars.ACCOUNT_TYPE};
-//
-//            Cursor calCursor = cr.query(CalendarContract.Calendars.CONTENT_URI, projection,
-//                    CalendarContract.Calendars.VISIBLE + " = 1", null, CalendarContract.Calendars._ID + " ASC");
-//            if (calCursor.moveToFirst()) {
-//                do {
-//                    long id = calCursor.getLong(0);
-//                    String displayName = calCursor.getString(1);
-//                    Log.d("calendarName", displayName);
-//                } while (calCursor.moveToNext());
-//            }
-
-
+        //TODO: add condition for task to not be closed
+        if (loadedTask.getEventId() == null) {
+            ContentResolver cr = getActivity().getContentResolver();
             ContentValues values = new ContentValues();
-            values.put(CalendarContract.Events.DTSTART, System.currentTimeMillis());
-//            values.put(CalendarContract.Events.DURATION, "P3D");
-            Calendar c = Calendar.getInstance();
-            c.setTime(loadedTask.getDeadline());
-            c.add(Calendar.DATE, 2);
-            values.put(CalendarContract.Events.DTEND, c.getTime().getTime());
-            values.put(CalendarContract.Events.ALL_DAY, 1);
-            values.put(CalendarContract.Events.TITLE, loadedTask.getName());
+
+            values.put(Events.DTSTART, loadedTask.getDateCreated().getTime());
+
+            LocalDate d1 = new LocalDate(loadedTask.getDateCreated());
+            LocalDate d2 = new LocalDate(loadedTask.getDeadline());
+            Period period = new Period(d1, d2);
+            Log.d("Marto", "days between " + d1 + " and " + d2 + " is " + period.getDays() + "days");
+            int duration = period.getDays() + 2;
+            values.put(CalendarContract.Events.DURATION, "P" + duration + "D");
+            values.put(Events.ALL_DAY, 1);
+            values.put(Events.TITLE, loadedTask.getName());
             if (loadedTask.getDescription() != null) {
-                values.put(CalendarContract.Events.DESCRIPTION, loadedTask.getDescription());
+                values.put(Events.DESCRIPTION, loadedTask.getDescription());
             }
-            values.put(CalendarContract.Events.CALENDAR_ID, 1);
-            values.put(CalendarContract.Events.EVENT_END_TIMEZONE, CalendarContract.Calendars.CALENDAR_TIME_ZONE);
-            values.put(CalendarContract.Events.EVENT_TIMEZONE, CalendarContract.Calendars.CALENDAR_TIME_ZONE);
-            values.put(CalendarContract.Events.ACCESS_LEVEL, CalendarContract.Events.ACCESS_PUBLIC);
+            values.put(Events.CALENDAR_ID, 1);
+//            values.put(Events.EVENT_END_TIMEZONE, Calendars.CALENDAR_TIME_ZONE);
+            values.put(Events.EVENT_TIMEZONE, Calendars.CALENDAR_TIME_ZONE);
+            values.put(Events.ACCESS_LEVEL, Events.ACCESS_PUBLIC);
 
             int permissionCheck = ContextCompat.checkSelfPermission(getActivity(),
                     Manifest.permission.WRITE_CALENDAR);
             if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                Uri insertUri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
-                eventId = Integer.parseInt(insertUri.getLastPathSegment());
+                Uri insertUri = cr.insert(Events.CONTENT_URI, values);
+                eventId = Long.parseLong(insertUri.getLastPathSegment());
+                loadedTask.setEventId(eventId);
                 Toast.makeText(getActivity(), "Created Calendar Event " + eventId, Toast.LENGTH_SHORT).show();
+
+
+//                ContentValues reminderValues = new ContentValues();
+//                reminderValues.put(Reminders.MINUTES, 600);
+//                reminderValues.put(Reminders.EVENT_ID, eventId);
+//                reminderValues.put(Reminders.METHOD, Reminders.METHOD_DEFAULT);
+//                Uri uri = cr.insert(Reminders.CONTENT_URI, values);
+
+
                 forceSync();
             }
         }
@@ -612,27 +658,28 @@ public class TaskFragment extends BaseMenuFragment {
                     public void onResponse(Account[] response) {
                         Long assignedUserId = -1l;
 
-                        if (loadedTask != null && loadedTask.getTakenAction() > 0) {
+                        if (loadedTask != null && loadedTask.getTakenAction() != null && loadedTask.getTakenAction() > 0) {
                             if (loadedTask.getTakenAction() == TaskAction.TRANSFER_NOTIFY.getIndex()) {
                                 assignedUserId = loadedTask.getTransferedTo();
-                            } else if (loadedTask.getDelegatedTo() == TaskAction.DELEGATE_FOLLOW_UP.getIndex()) {
+                            } else if (loadedTask.getTakenAction() == TaskAction.DELEGATE_FOLLOW_UP.getIndex()) {
                                 assignedUserId = loadedTask.getDelegatedTo();
                             }
                         }
 
                         mUsers.addAll(Arrays.asList(response));
                         Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
-                        int position = -1;
+                        int position = 0;
+                        strings.add(getResources().getString(R.string.no_user));
                         for (Account acc : mUsers) {
                             strings.add(acc != null ? acc.toString() : null);
-                            if (acc.getAccountId() == assignedUserId) {
+                            if (acc != null && acc.getAccountId() == assignedUserId) {
                                 position = mUsers.indexOf(acc);
                             }
                         }
 
                         if (isFragmentUIActive()) {
                             assignedUser = setSpinner(R.id.assignedUser, strings);
-                            if (loadedTask != null && position > -1) {
+                            if (loadedTask != null) {
                                 assignedUser.setSelection(position);
                                 performUiChangesOnActionChanged(loadedTask.getTakenAction(), assignedUser, null);
                             }
@@ -659,13 +706,20 @@ public class TaskFragment extends BaseMenuFragment {
                     public void onResponse(Project[] response) {
                         list.addAll(Arrays.asList(response));
                         List<String> strings = new ArrayList<>();
+                        strings.add(getResources().getString(R.string.no_project));
+                        int position = 0;
+
                         for (Project project : list) {
                             strings.add(project != null ? project.toString() : null);
+                            if (project != null && loadedTask.getProject() != null
+                                    && project.getProjectId() == loadedTask.getProject().getProjectId()) {
+                                position = list.indexOf(project);
+                            }
                         }
                         Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
                         if (isFragmentUIActive()) {
-                            //TODO: get selected project from loaded task
                             projectSpinner = setSpinner(R.id.project, strings);
+                            projectSpinner.setSelection(position);
                         }
                     }
                 }
@@ -690,14 +744,18 @@ public class TaskFragment extends BaseMenuFragment {
                     public void onResponse(Task[] response) {
                         list.addAll(Arrays.asList(response));
                         List<String> strings = new ArrayList<>();
-                        strings.add("No dependencies");
+                        strings.add(getResources().getString(R.string.no_task));
+                        int position = 0;
                         for (Task task : list) {
                             strings.add(task != null ? task.toString() : null);
+                            if (task != null && task.getTaskId() == loadedTask.getDependOn()) {
+                                position = list.indexOf(task);
+                            }
                         }
                         Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
                         if (isFragmentUIActive()) {
-                            //TODO: get dependent task project from loaded task
                             dependentTaskSpinner = setSpinner(R.id.dependOn, strings);
+                            dependentTaskSpinner.setSelection(position);
                         }
                     }
                 }

@@ -1,10 +1,7 @@
 package com.unisofia.fmi.pfly.ui.fragment;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
@@ -16,8 +13,6 @@ import android.widget.ListView;
 
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.api.model.Project;
-import com.unisofia.fmi.pfly.api.model.Task;
-import com.unisofia.fmi.pfly.ui.activity.TasksActivity;
 import com.unisofia.fmi.pfly.ui.adapter.ProjectsAdapter;
 
 public class ProjectsFragment extends BaseMenuFragment {
@@ -25,7 +20,8 @@ public class ProjectsFragment extends BaseMenuFragment {
 	private ListView mProjectsListView;
 	private ProjectsAdapter mProjectsAdapter;
 	private OnProjectSelectedListener mListener;
-	private FloatingActionButton fabBtn;
+	private FloatingActionButton addProjectBtn;
+
 
 
 	@Override
@@ -65,15 +61,21 @@ public class ProjectsFragment extends BaseMenuFragment {
 		});
 
 
-		fabBtn = (FloatingActionButton) view.findViewById(R.id.addProject);
-		fabBtn.setOnClickListener(new View.OnClickListener() {
+		addProjectBtn = (FloatingActionButton) view.findViewById(R.id.addProject);
+		addProjectBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
+				ProjectFragment projectFragment = new ProjectFragment();
+				projectFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
+					@Override
+					public void onDismiss(DialogInterface dialog) {
+						mProjectsAdapter.fetchProjects();
+					}
+				});
+				projectFragment.show(getActivity().getSupportFragmentManager(), "ProjectDialog");
 			}
 		});
 	}
-
 
 	// Container Activity must implement this interface
 	public interface OnProjectSelectedListener {
