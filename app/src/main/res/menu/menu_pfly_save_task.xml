@@ -6,18 +6,21 @@
         android:id="@+id/open_calendar_event"
         android:orderInCategory="100"
         android:title="@string/action_event"
+        android:icon="@drawable/event"
         android:visible="false"
         app:showAsAction="always" />
 
-    <!--<item-->
-        <!--android:id="@+id/reminder_task"-->
-        <!--android:orderInCategory="100"-->
-        <!--android:title="@string/action_reminder"-->
-        <!--app:showAsAction="always" />-->
+    <item
+        android:id="@+id/archive_task"
+        android:orderInCategory="100"
+        android:title="@string/action_archive"
+        android:icon="@drawable/archive"
+        app:showAsAction="always" />
     <item
         android:id="@+id/save_task"
         android:orderInCategory="100"
         android:title="@string/action_save"
+        android:icon="@drawable/save"
         app:showAsAction="always" />
 
 </menu>

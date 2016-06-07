@@ -109,13 +109,6 @@ public class TasksFragment extends BaseMenuFragment {
         }
     }
 
-//    private void setItemsVisibility(Menu menu, MenuItem exception, boolean visible) {
-//        for (int i=0; i<menu.size(); ++i) {
-//            MenuItem item = menu.getItem(i);
-//            if (item != exception) item.setVisible(visible);
-//        }
-//    }
-
     private String setCriteria(List<CheckBox> listCheckBox) {
         StringBuilder criteria = new StringBuilder();
         for (CheckBox checkBox : listCheckBox) {
@@ -227,7 +220,7 @@ public class TasksFragment extends BaseMenuFragment {
         });
     }
 
-    private void deleteTasks(){
+    private void deleteTasks() {
         SparseBooleanArray selected = mTasksAdapter
                 .getSelectedIds();
         List<Task> removedTasks = new ArrayList<>();
@@ -244,13 +237,14 @@ public class TasksFragment extends BaseMenuFragment {
         }
     }
 
-    private void sortTasks(){
+    private void sortTasks() {
         Toast.makeText(getActivity(), "Sorting....", Toast.LENGTH_SHORT).show();
         List<Task> tasks = mTasksAdapter.getTasks();
         Collections.sort(tasks, new Comparator<Task>() {
             @Override
             public int compare(Task lhs, Task rhs) {
-                return rhs.getFlyScore() - lhs.getFlyScore();
+                //TODO: make closed tasks last
+                    return rhs.getFlyScore() - lhs.getFlyScore();
             }
         });
 
@@ -264,7 +258,7 @@ public class TasksFragment extends BaseMenuFragment {
         mTasksAdapter.setTasks(tasks);
     }
 
-    private void filterTasks(){
+    private void filterTasks() {
         Toast.makeText(getActivity(), "Filter dialog....", Toast.LENGTH_LONG).show();
 
         Button dialogButton = (Button) filterDialog.findViewById(R.id.dialogButtonOK);
@@ -274,7 +268,7 @@ public class TasksFragment extends BaseMenuFragment {
                 filterDialog.dismiss();
                 StringBuilder criteriaQuery = new StringBuilder();
                 criteriaQuery.append(setCriteria(listFilterCriteria));
-                if (mSearchView.getQuery().length()>0){
+                if (mSearchView.getQuery().length() > 0) {
                     criteriaQuery.append(mSearchView.getQuery());
                 }
                 mTasksAdapter.getFilter()
@@ -284,7 +278,7 @@ public class TasksFragment extends BaseMenuFragment {
         filterDialog.show();
     }
 
-    private void searchTasks(){
+    private void searchTasks() {
 //        searchMenuItem.setVisible(true);
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -296,7 +290,7 @@ public class TasksFragment extends BaseMenuFragment {
             public boolean onQueryTextChange(String newText) {
 //                Toast.makeText(getActivity(), newText, Toast.LENGTH_LONG).show();
                 StringBuilder criteriaQuery = new StringBuilder();
-                if (setCriteria(listFilterCriteria).length()>0){
+                if (setCriteria(listFilterCriteria).length() > 0) {
                     criteriaQuery.append(setCriteria(listFilterCriteria));
                 }
                 criteriaQuery.append(newText);

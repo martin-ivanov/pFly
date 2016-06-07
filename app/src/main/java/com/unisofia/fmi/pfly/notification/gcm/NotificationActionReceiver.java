@@ -78,6 +78,9 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                     Toast.makeText(context, "Task declined", Toast.LENGTH_SHORT).show();
                 }
             });
+
+            //TODO update taskView if visible
+            //TODO catch dismiss of notification - also decline
         }
     }
 

@@ -1,19 +1,10 @@
 package com.unisofia.fmi.pfly.ui.fragment;
 
-import android.Manifest;
-import android.accounts.AccountManager;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.CalendarContract;
-import android.support.v4.content.ContextCompat;
-import android.text.Editable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,17 +27,14 @@ import com.unisofia.fmi.pfly.account.UserManager;
 import com.unisofia.fmi.pfly.api.ApiConstants;
 import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Account;
-import com.unisofia.fmi.pfly.api.util.DateSerializer;
 import com.unisofia.fmi.pfly.api.model.Project;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.api.request.BaseGsonRequest;
 import com.unisofia.fmi.pfly.api.request.RequestErrorListener;
 import com.unisofia.fmi.pfly.api.request.get.BaseGetRequest;
 import com.unisofia.fmi.pfly.api.request.post.BasePostRequest;
-import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
-
-import org.joda.time.LocalDate;
-import org.joda.time.Period;
+import com.unisofia.fmi.pfly.api.util.CalendarUtil;
+import com.unisofia.fmi.pfly.api.util.DateSerializer;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -56,12 +44,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import static com.unisofia.fmi.pfly.api.model.Task.TaskAction;
-import static android.provider.CalendarContract.Events;
-import static android.provider.CalendarContract.Reminders;
-import static android.provider.CalendarContract.Calendars;
+import static com.unisofia.fmi.pfly.api.model.Task.TaskStatus;
+
 
 public class TaskFragment extends BaseMenuFragment {
     private TextView taskId;
@@ -104,6 +90,7 @@ public class TaskFragment extends BaseMenuFragment {
 
     private Spinner actionSpinner;
     private int flyScore;
+    TextView flyScoreView;
     private Long eventId;
 
     SimpleDateFormat sdf = new SimpleDateFormat(DatePickerFragment.DATE_FORMAT_PATTERN);
@@ -111,6 +98,7 @@ public class TaskFragment extends BaseMenuFragment {
     private View fragmentView = null;
     private boolean isRangeEnabled = false;
     private Task loadedTask = null;
+    private List<Project> availableProjects;
 
 
     @Override
@@ -131,8 +119,14 @@ public class TaskFragment extends BaseMenuFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_pfly_save_task, menu);
         MenuItem eventOption = menu.findItem(R.id.open_calendar_event);
+        MenuItem saveOption = menu.findItem(R.id.save_task);
+        MenuItem archiveOption = menu.findItem(R.id.archive_task);
         if (loadedTask != null && loadedTask.getEventId() != null) {
             eventOption.setVisible(true);
+        }
+        if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+            saveOption.setVisible(false);
+            archiveOption.setVisible(false);
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -148,12 +142,33 @@ public class TaskFragment extends BaseMenuFragment {
             case R.id.save_task:
                 saveTask();
                 return true;
-//            case R.id.reminder_task:
-//                setReminder();
-//                return true;
+            case R.id.archive_task:
+                archiveTask();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void archiveTask() {
+        setTaskValues();
+        loadedTask.setStatus(TaskStatus.CLOSED.getIndex());
+        postTaskToServer();
+        Toast.makeText(getActivity(), "Task archived.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setFieldsEnabled(boolean enabled){
+        name.setEnabled(enabled);
+        description.setEnabled(enabled);
+        desiredOutcome.setEnabled(enabled);
+        notes.setEnabled(enabled);
+
+        actionSpinner.setEnabled(enabled);
+        dateCreated.setEnabled(enabled);
+        dateFinished.setEnabled(enabled);
+        deadline.setEnabled(enabled);
+        lastResponsibleMoment.setEnabled(enabled);
+
     }
 
     @Override
@@ -172,6 +187,7 @@ public class TaskFragment extends BaseMenuFragment {
 
         isRangeEnabled = Boolean.parseBoolean(prefs.get("fly_weight_switch").toString());
         setFlyCharacteristics();
+        flyScoreView = (TextView) fragmentView.findViewById(R.id.fly_score);
         setDatePickers();
 
         actionSpinner = (Spinner) view.findViewById(R.id.actionSpinner);
@@ -199,6 +215,7 @@ public class TaskFragment extends BaseMenuFragment {
 
         if (loadedTask == null) {
             loadedTask = new Task();
+            loadedTask.setStatus(TaskStatus.OPENED.getIndex());
         }
     }
 
@@ -352,11 +369,13 @@ public class TaskFragment extends BaseMenuFragment {
     }
 
     private void calculateFlyScore() {
-        TextView flyScoreView = (TextView) fragmentView.findViewById(R.id.fly_score);
+
         flyScore = intImportanceValue + extImportanceValue + simplicityValue +
                 clearnessValue + closenessValue;
-
-        flyScoreView.setText(flyScore + "");
+        if (flyScoreView.getVisibility() == View.GONE) {
+            flyScoreView.setVisibility(View.VISIBLE);
+        }
+        flyScoreView.setText("Fly score: " + flyScore);
     }
 
     private TaskAction recommendAction() {
@@ -395,6 +414,8 @@ public class TaskFragment extends BaseMenuFragment {
             performUiChangesOnActionChanged(loadedTask.getTakenAction(), null, lastResponsibleMoment);
         }
 
+        eventId = loadedTask.getEventId();
+
 //        //fly characteristics
         intImportanceValue = (loadedTask.getIntImportance() != null) ? loadedTask.getIntImportance() : 0;
         if (intImportanceValue > 0) {
@@ -427,6 +448,7 @@ public class TaskFragment extends BaseMenuFragment {
         }
 
         flyScore = loadedTask.getFlyScore();
+        flyScoreView.setText("Fly score: " + flyScore);
 
 
         if (loadedTask.getDateCreated() != null) {
@@ -441,6 +463,9 @@ public class TaskFragment extends BaseMenuFragment {
             deadline.setText(sdf.format(loadedTask.getDeadline()));
         }
 
+        if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+            setFieldsEnabled(false);
+        }
 
     }
 
@@ -467,10 +492,12 @@ public class TaskFragment extends BaseMenuFragment {
             if (assignedUserId.length() > 0) {
                 if (actionSpinner.getSelectedItem().toString().equals(TaskAction.DELEGATE_FOLLOW_UP.toString())) {
                     loadedTask.setDelegatedTo(Long.parseLong(assignedUserId));
+                    loadedTask.setStatus(TaskStatus.DELEGATED.getIndex());
                 }
 
                 if (actionSpinner.getSelectedItem().toString().equals(TaskAction.TRANSFER_NOTIFY.toString())) {
                     loadedTask.setTransferedTo(Long.parseLong(assignedUserId));
+                    loadedTask.setStatus(TaskStatus.TRANSFERRED.getIndex());
                 }
             }
         }
@@ -479,8 +506,17 @@ public class TaskFragment extends BaseMenuFragment {
             loadedTask.setDependOn(Long.parseLong(dependentTaskId));
         }
 
+        String project = getItemId(projectSpinner.getSelectedItem());
+        if (project.length() > 0) {
+            for (Project prj : availableProjects) {
+                if (prj.getProjectId() == Long.parseLong(project)) {
+                    loadedTask.setProject(prj);
+                    break;
+                }
+            }
+        }
+
         loadedTask.setEventId(eventId);
-//        loadedTask.setStatus();
         loadedTask.setTakenAction(actionSpinner.getSelectedItemPosition());
 
 
@@ -497,6 +533,7 @@ public class TaskFragment extends BaseMenuFragment {
 
             if (!lastResponsibleMoment.getText().toString().equals("")) {
                 loadedTask.setLastResponsibleMoment(sdf.parse(lastResponsibleMoment.getText().toString()));
+                loadedTask.setStatus(TaskStatus.DEFERRED.getIndex());
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -516,8 +553,9 @@ public class TaskFragment extends BaseMenuFragment {
     private void saveTask() {
         if (validateFields()) {
             setTaskValues();
-            addTaskToCalendar();
+            CalendarUtil.addTaskToCalendar(getActivity(), loadedTask);
             postTaskToServer();
+            Toast.makeText(getActivity(), "Task saved.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -563,79 +601,11 @@ public class TaskFragment extends BaseMenuFragment {
         RequestManager.sendRequest(getActivity(), null, taskPostRequest, new Response.Listener<Task>() {
             @Override
             public void onResponse(Task response) {
-                Toast.makeText(getActivity(), "Task saved.", Toast.LENGTH_SHORT).show();
+
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.content_frame, new TasksFragment()).addToBackStack(null).commit();
             }
         });
-    }
-
-//    private void setReminder() {
-//        ReminderFragment reminderFragment = new ReminderFragment();
-//        Bundle args = new Bundle();
-//        args.putString("taskName", name.getText().toString());
-//        args.putString("taskDeadline", deadline.getText().toString());
-//        reminderFragment.setArguments(args);
-//        reminderFragment.show(getActivity().getSupportFragmentManager(), "ReminderDialog");
-//    }
-
-    private void addTaskToCalendar() {
-
-        //TODO: add condition for task to not be closed
-        if (loadedTask.getEventId() == null) {
-            ContentResolver cr = getActivity().getContentResolver();
-            ContentValues values = new ContentValues();
-
-            values.put(Events.DTSTART, loadedTask.getDateCreated().getTime());
-
-            LocalDate d1 = new LocalDate(loadedTask.getDateCreated());
-            LocalDate d2 = new LocalDate(loadedTask.getDeadline());
-            Period period = new Period(d1, d2);
-            Log.d("Marto", "days between " + d1 + " and " + d2 + " is " + period.getDays() + "days");
-            int duration = period.getDays() + 2;
-            values.put(CalendarContract.Events.DURATION, "P" + duration + "D");
-            values.put(Events.ALL_DAY, 1);
-            values.put(Events.TITLE, loadedTask.getName());
-            if (loadedTask.getDescription() != null) {
-                values.put(Events.DESCRIPTION, loadedTask.getDescription());
-            }
-            values.put(Events.CALENDAR_ID, 1);
-//            values.put(Events.EVENT_END_TIMEZONE, Calendars.CALENDAR_TIME_ZONE);
-            values.put(Events.EVENT_TIMEZONE, Calendars.CALENDAR_TIME_ZONE);
-            values.put(Events.ACCESS_LEVEL, Events.ACCESS_PUBLIC);
-
-            int permissionCheck = ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.WRITE_CALENDAR);
-            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                Uri insertUri = cr.insert(Events.CONTENT_URI, values);
-                eventId = Long.parseLong(insertUri.getLastPathSegment());
-                loadedTask.setEventId(eventId);
-                Toast.makeText(getActivity(), "Created Calendar Event " + eventId, Toast.LENGTH_SHORT).show();
-
-
-//                ContentValues reminderValues = new ContentValues();
-//                reminderValues.put(Reminders.MINUTES, 600);
-//                reminderValues.put(Reminders.EVENT_ID, eventId);
-//                reminderValues.put(Reminders.METHOD, Reminders.METHOD_DEFAULT);
-//                Uri uri = cr.insert(Reminders.CONTENT_URI, values);
-
-
-                forceSync();
-            }
-        }
-    }
-
-    private void forceSync() {
-        Bundle extras = new Bundle();
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        AccountManager am = AccountManager.get(WelcomeActivity.getAppContext());
-        android.accounts.Account[] acc = am.getAccountsByType("com.google");
-        android.accounts.Account account = null;
-        if (acc.length > 0) {
-            account = acc[0];
-            ContentResolver.requestSync(account, "com.android.calendar", extras);
-        }
     }
 
     private void getUsers(final Context context) {
@@ -673,7 +643,7 @@ public class TaskFragment extends BaseMenuFragment {
                         for (Account acc : mUsers) {
                             strings.add(acc != null ? acc.toString() : null);
                             if (acc != null && acc.getAccountId() == assignedUserId) {
-                                position = mUsers.indexOf(acc);
+                                position = mUsers.indexOf(acc) + 1;
                             }
                         }
 
@@ -682,6 +652,9 @@ public class TaskFragment extends BaseMenuFragment {
                             if (loadedTask != null) {
                                 assignedUser.setSelection(position);
                                 performUiChangesOnActionChanged(loadedTask.getTakenAction(), assignedUser, null);
+                                if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+                                    assignedUser.setEnabled(false);
+                                }
                             }
                         }
                     }
@@ -696,7 +669,6 @@ public class TaskFragment extends BaseMenuFragment {
                 Project[].class,
                 new RequestErrorListener(context, null)
         );
-        final List<Project> list = new ArrayList<>();
         RequestManager.sendRequest(
                 context,
                 null,
@@ -704,22 +676,26 @@ public class TaskFragment extends BaseMenuFragment {
                 new Response.Listener<Project[]>() {
                     @Override
                     public void onResponse(Project[] response) {
-                        list.addAll(Arrays.asList(response));
+                        availableProjects = new ArrayList<>();
+                        availableProjects.addAll(Arrays.asList(response));
                         List<String> strings = new ArrayList<>();
                         strings.add(getResources().getString(R.string.no_project));
                         int position = 0;
 
-                        for (Project project : list) {
+                        for (Project project : availableProjects) {
                             strings.add(project != null ? project.toString() : null);
                             if (project != null && loadedTask.getProject() != null
                                     && project.getProjectId() == loadedTask.getProject().getProjectId()) {
-                                position = list.indexOf(project);
+                                position = availableProjects.indexOf(project) + 1;
                             }
                         }
                         Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
                         if (isFragmentUIActive()) {
                             projectSpinner = setSpinner(R.id.project, strings);
                             projectSpinner.setSelection(position);
+                            if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+                                projectSpinner.setEnabled(false);
+                            }
                         }
                     }
                 }
@@ -749,13 +725,16 @@ public class TaskFragment extends BaseMenuFragment {
                         for (Task task : list) {
                             strings.add(task != null ? task.toString() : null);
                             if (task != null && task.getTaskId() == loadedTask.getDependOn()) {
-                                position = list.indexOf(task);
+                                position = list.indexOf(task) + 1;
                             }
                         }
                         Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
                         if (isFragmentUIActive()) {
                             dependentTaskSpinner = setSpinner(R.id.dependOn, strings);
                             dependentTaskSpinner.setSelection(position);
+                            if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+                                dependentTaskSpinner.setEnabled(false);
+                            }
                         }
                     }
                 }
@@ -775,7 +754,8 @@ public class TaskFragment extends BaseMenuFragment {
             TaskAction recommendAction = recommendAction();
             loadedTask.setRecommendedAction(recommendAction.getIndex());
             TextView recommendedAction = (TextView) fragmentView.findViewById(R.id.recommendedAction);
-            recommendedAction.setText(recommendAction.toString());
+            recommendedAction.setVisibility(View.VISIBLE);
+            recommendedAction.setText("pFly recommendation is to " + recommendAction.toString().toLowerCase());
 //            Spinner actionSpinner = (Spinner) fragmentView.findViewById(R.id.actionSpinner);
 //            actionSpinner.setSelection(recommendAction.getIndex());
         }

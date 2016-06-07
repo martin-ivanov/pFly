@@ -158,12 +158,8 @@ public class Task implements Serializable {
 	}
 
 
-	public int getStatus() {
+	public Integer getStatus() {
 		return this.status;
-	}
-
-	public void setStatus(int status) {
-		this.status = status;
 	}
 
 	public Integer getTakenAction() {
@@ -290,5 +286,47 @@ public class Task implements Serializable {
 			return map.get(index);
 		}
 
+	}
+
+
+	public enum TaskStatus {
+		OPENED("OPENED", 0),
+		DELEGATED("DELEGATED", 1),
+		TRANSFERRED("TRANSFERRED", 2),
+		DEFERRED("DEFERRED", 3),
+		CLOSED("CLOSED",4);
+
+		private static Map<Integer, TaskStatus> map = new HashMap<>();
+		static {
+			for (TaskStatus taskStatus : TaskStatus.values()){
+				map.put(taskStatus.getIndex(), taskStatus);
+			}
+		}
+
+		private final String text;
+		private final int index;
+
+		TaskStatus(final String text, int index){
+			this.text = text;
+			this.index = index;
+		}
+
+		@Override
+		public String toString(){
+			return text;
+		}
+
+		public int getIndex(){
+			return index;
+		}
+
+		public static String getStatus(Integer index){
+			return (index != null) ? map.get(index).toString() : "";
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "[" + taskId + "] " + name;
 	}
 }

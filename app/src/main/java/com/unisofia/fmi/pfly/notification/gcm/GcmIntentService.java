@@ -93,7 +93,7 @@ public class GcmIntentService extends IntentService {
         acceptIntent.setAction("acceptIntent");
         acceptIntent.putExtra("notificationId", NOTIFICATION_ID);
         PendingIntent pendingAcceptIntent = PendingIntent.getBroadcast(this, 12345, acceptIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Action acceptAction = new NotificationCompat.Action.Builder(R.drawable.circle, "Accept", pendingAcceptIntent).build();
+        NotificationCompat.Action acceptAction = new NotificationCompat.Action.Builder(R.drawable.confirm, "Accept", pendingAcceptIntent).build();
         builder.addAction(acceptAction);
 
         //Decline intent
@@ -103,7 +103,7 @@ public class GcmIntentService extends IntentService {
         declineIntent.putExtra("taskActionType", taskActionType);
         declineIntent.putExtra("notificationId", NOTIFICATION_ID);
         PendingIntent pendingDeclineIntent = PendingIntent.getBroadcast(this, 12345, declineIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Action declineAction = new NotificationCompat.Action.Builder(R.drawable.circle, "Decline", pendingDeclineIntent).build();
+        NotificationCompat.Action declineAction = new NotificationCompat.Action.Builder(R.drawable.close, "Decline", pendingDeclineIntent).build();
         builder.addAction(declineAction);
 
         Notification notification = builder.build();

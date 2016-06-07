@@ -1,8 +1,13 @@
 package com.unisofia.fmi.pfly.ui.adapter;
 
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
+import android.provider.CalendarContract;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +29,7 @@ import com.unisofia.fmi.pfly.api.request.BaseGsonRequest;
 import com.unisofia.fmi.pfly.api.request.RequestErrorListener;
 import com.unisofia.fmi.pfly.api.request.delete.BaseDeleteRequest;
 import com.unisofia.fmi.pfly.api.request.get.BaseGetRequest;
+import com.unisofia.fmi.pfly.api.util.CalendarUtil;
 import com.unisofia.fmi.pfly.ui.filter.AndCriteria;
 import com.unisofia.fmi.pfly.ui.filter.ClearnessCriteria;
 import com.unisofia.fmi.pfly.ui.filter.ClosenessCriteria;
@@ -32,6 +38,9 @@ import com.unisofia.fmi.pfly.ui.filter.ExtImportanceCriteria;
 import com.unisofia.fmi.pfly.ui.filter.IntImportanceCriteria;
 import com.unisofia.fmi.pfly.ui.filter.NameCriteria;
 import com.unisofia.fmi.pfly.ui.filter.SimplicityCriteria;
+import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -131,6 +140,7 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
             holder.mDescriptionTextView = (TextView) convertView
                     .findViewById(R.id.textview_description);
             holder.mScoreTextView = (TextView) convertView.findViewById(R.id.fly_score_holder);
+            holder.mStatus = (TextView) convertView.findViewById(R.id.task_status);
             holder.mFlyIndicator = (ImageView) convertView.findViewById(R.id.fly_indicator);
             holder.mActionIndicator = (GradientDrawable) convertView.findViewById(R.id.action_indicator).getBackground();
 
@@ -142,8 +152,13 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
         Task task = getItem(position);
 
         holder.mTitleTextView.setText(task.getName());
-        holder.mDescriptionTextView.setText(task.getDescription());
-        holder.mScoreTextView.setText(task.getFlyScore() + "");
+        if (task.getDescription() != null){
+            holder.mDescriptionTextView.setText(task.getDescription());
+        } else {
+            holder.mDescriptionTextView.setVisibility(View.GONE);
+        }
+        holder.mScoreTextView.setText("Score: " + task.getFlyScore());
+        holder.mStatus.setText(Task.TaskStatus.getStatus(task.getStatus()));
         if (task.getTakenAction() != null) {
             holder.mActionIndicator.setColor(mContext.getResources().getColor(
                     Task.TaskAction.getAction(task.getTakenAction()).getColor()));
@@ -178,11 +193,12 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
             public void onResponse(String response) {
                 Toast.makeText(mContext, "Tasks deleted", Toast.LENGTH_SHORT).show();
                 mTasks.remove(task);
+                CalendarUtil.deleteTaskFromCalendar(mContext, task);
                 notifyDataSetChanged();
             }
         });
 
-        //TODO remove event from calendar
+
     }
 
     public void toggleSelection(int position) {
@@ -219,6 +235,7 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
         TextView mTitleTextView;
         TextView mDescriptionTextView;
         TextView mScoreTextView;
+        TextView mStatus;
         ImageView mFlyIndicator;
         GradientDrawable mActionIndicator;
     }

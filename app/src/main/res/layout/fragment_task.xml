@@ -202,15 +202,17 @@
 
         <TextView
             android:id="@+id/fly_score"
+            android:paddingTop="15dp"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/recommendedAction"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-
 
         <com.rey.material.widget.Spinner
             android:id="@+id/actionSpinner"
@@ -246,10 +248,12 @@
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_dateCreated"
+            android:paddingTop="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         <EditText
             android:id="@+id/dateCreated"
+            android:paddingTop="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -260,11 +264,13 @@
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_dateFinised"
+            android:paddingTop="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <EditText
                 android:id="@+id/dateFinished"
+                android:paddingTop="15dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -275,6 +281,7 @@
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_deadline"
+            android:paddingTop="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -290,6 +297,7 @@
 
         <com.rey.material.widget.Spinner
             android:id="@+id/dependOn"
+            android:paddingTop="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minWidth="128dp"
@@ -299,6 +307,7 @@
 
         <com.rey.material.widget.Spinner
             android:id="@+id/project"
+            android:paddingTop="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
