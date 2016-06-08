@@ -10,6 +10,15 @@
         android:layout_height="match_parent"
         android:divider="@null" />
 
+    <TextView
+        android:id="@+id/emptyResults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:textSize="30sp"
+        android:text="@string/no_projects"
+        android:textAlignment="center"/>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addProject"
         android:layout_width="wrap_content"

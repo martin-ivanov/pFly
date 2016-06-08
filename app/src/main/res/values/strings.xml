@@ -16,6 +16,14 @@
     <string name="menu_subscribe">Subscribe</string>
     <string name="menu_logout">Logout</string>
 
+    <!-- Tabs -->
+    <string name="all_tasks">All tasks</string>
+    <string name="archived_tasks">Archived tasks</string>
+
+    <string name="no_projects">No projects</string>
+    <string name="no_tasks">No tasks</string>
+
+
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="loginText">Please login with your Google Account</string>

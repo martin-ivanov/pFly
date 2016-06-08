@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +38,8 @@ import com.unisofia.fmi.pfly.api.request.post.BasePostRequest;
 import com.unisofia.fmi.pfly.api.util.CalendarUtil;
 import com.unisofia.fmi.pfly.api.util.DateSerializer;
 
+import org.w3c.dom.Text;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,6 +57,7 @@ public class TaskFragment extends BaseMenuFragment {
     private TextView taskId;
     private EditText name;
     private EditText description;
+    private TextView creator;
 
     private EditText deadline;
     private EditText desiredOutcome;
@@ -124,7 +129,12 @@ public class TaskFragment extends BaseMenuFragment {
         if (loadedTask != null && loadedTask.getEventId() != null) {
             eventOption.setVisible(true);
         }
-        if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+
+        if (loadedTask.getTaskId() == null) {
+            archiveOption.setVisible(false);
+        }
+
+        if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()) {
             saveOption.setVisible(false);
             archiveOption.setVisible(false);
         }
@@ -157,7 +167,7 @@ public class TaskFragment extends BaseMenuFragment {
         Toast.makeText(getActivity(), "Task archived.", Toast.LENGTH_SHORT).show();
     }
 
-    private void setFieldsEnabled(boolean enabled){
+    private void setFieldsEnabled(boolean enabled) {
         name.setEnabled(enabled);
         description.setEnabled(enabled);
         desiredOutcome.setEnabled(enabled);
@@ -184,6 +194,7 @@ public class TaskFragment extends BaseMenuFragment {
         description = (EditText) view.findViewById(R.id.description);
         notes = (EditText) view.findViewById(R.id.notes);
         desiredOutcome = (EditText) view.findViewById(R.id.desired_outcome);
+        creator = (TextView) view.findViewById(R.id.creator);
 
         isRangeEnabled = Boolean.parseBoolean(prefs.get("fly_weight_switch").toString());
         setFlyCharacteristics();
@@ -281,6 +292,7 @@ public class TaskFragment extends BaseMenuFragment {
         bar.setOnPositionChangeListener(new Slider.OnPositionChangeListener() {
             @Override
             public void onPositionChanged(Slider view, boolean fromUser, float oldPos, float newPos, int oldValue, int newValue) {
+                calculateValues(view);
                 calculateFlyScore();
             }
         });
@@ -330,41 +342,37 @@ public class TaskFragment extends BaseMenuFragment {
         }
     }
 
-    private void calculateValues(View checkBoxView) {
-        if (isRangeEnabled) {
-            switch (checkBoxView.getId()) {
-                case R.id.intImportance:
-                    intImportanceValue = (intImportance.isChecked()) ? (int) intImportanceBar.getExactValue() : 0;
-                    break;
-                case R.id.extImportance:
-                    extImportanceValue = (extImportance.isChecked()) ? (int) extImportanceBar.getExactValue() : 0;
-                    break;
-                case R.id.simplicity:
-                    simplicityValue = (simplicity.isChecked()) ? (int) simplicityBar.getExactValue() : 0;
-                    break;
-                case R.id.clearness:
-                    clearnessValue = (clearness.isChecked()) ? (int) clearnessBar.getExactValue() : 0;
-                    break;
-                case R.id.closeness:
-                    closenessValue = (closeness.isChecked()) ? (int) closenessBar.getExactValue() : 0;
-            }
-        } else {
-            switch (checkBoxView.getId()) {
-                case R.id.intImportance:
-                    intImportanceValue = (intImportance.isChecked()) ? Integer.parseInt(prefs.get("intImportanceWeightPref").toString()) : 0;
-                    break;
-                case R.id.extImportance:
-                    extImportanceValue = (extImportance.isChecked()) ? Integer.parseInt(prefs.get("extImportanceWeightPref").toString()) : 0;
-                    break;
-                case R.id.simplicity:
-                    simplicityValue = (simplicity.isChecked()) ? Integer.parseInt(prefs.get("simplicityWeightPref").toString()) : 0;
-                    break;
-                case R.id.clearness:
-                    clearnessValue = (clearness.isChecked()) ? Integer.parseInt(prefs.get("clearnessWeightPref").toString()) : 0;
-                    break;
-                case R.id.closeness:
-                    closenessValue = (closeness.isChecked()) ? Integer.parseInt(prefs.get("closenessWeightPref").toString()) : 0;
-            }
+    private void calculateValues(View view) {
+        switch (view.getId()) {
+            case R.id.intImportanceBar:
+                intImportanceValue = (intImportance.isChecked()) ? (int) intImportanceBar.getExactValue() : 0;
+                break;
+            case R.id.extImportanceBar:
+                extImportanceValue = (extImportance.isChecked()) ? (int) extImportanceBar.getExactValue() : 0;
+                break;
+            case R.id.simplicityBar:
+                simplicityValue = (simplicity.isChecked()) ? (int) simplicityBar.getExactValue() : 0;
+                break;
+            case R.id.clearnessBar:
+                clearnessValue = (clearness.isChecked()) ? (int) clearnessBar.getExactValue() : 0;
+                break;
+            case R.id.closenessBar:
+                closenessValue = (closeness.isChecked()) ? (int) closenessBar.getExactValue() : 0;
+                break;
+            case R.id.intImportance:
+                intImportanceValue = (intImportance.isChecked()) ? Integer.parseInt(prefs.get("intImportanceWeightPref").toString()) : 0;
+                break;
+            case R.id.extImportance:
+                extImportanceValue = (extImportance.isChecked()) ? Integer.parseInt(prefs.get("extImportanceWeightPref").toString()) : 0;
+                break;
+            case R.id.simplicity:
+                simplicityValue = (simplicity.isChecked()) ? Integer.parseInt(prefs.get("simplicityWeightPref").toString()) : 0;
+                break;
+            case R.id.clearness:
+                clearnessValue = (clearness.isChecked()) ? Integer.parseInt(prefs.get("clearnessWeightPref").toString()) : 0;
+                break;
+            case R.id.closeness:
+                closenessValue = (closeness.isChecked()) ? Integer.parseInt(prefs.get("closenessWeightPref").toString()) : 0;
         }
     }
 
@@ -372,6 +380,10 @@ public class TaskFragment extends BaseMenuFragment {
 
         flyScore = intImportanceValue + extImportanceValue + simplicityValue +
                 clearnessValue + closenessValue;
+        showFlyScore(flyScore);
+    }
+
+    private void showFlyScore(int flyScore) {
         if (flyScoreView.getVisibility() == View.GONE) {
             flyScoreView.setVisibility(View.VISIBLE);
         }
@@ -407,6 +419,8 @@ public class TaskFragment extends BaseMenuFragment {
         description.setText(loadedTask.getDescription());
         desiredOutcome.setText(loadedTask.getDesiredOutcome());
         notes.setText(loadedTask.getNotes());
+        creator.setText("Creator: " + loadedTask.getAccount().getName() +
+                " (" + loadedTask.getAccount().getEmail() + ")");
         actionSpinner.setSelection(loadedTask.getTakenAction());
 
         if (loadedTask.getTakenAction() == TaskAction.SCHEDULE_DEFER.getIndex()) {
@@ -448,7 +462,7 @@ public class TaskFragment extends BaseMenuFragment {
         }
 
         flyScore = loadedTask.getFlyScore();
-        flyScoreView.setText("Fly score: " + flyScore);
+        showFlyScore(flyScore);
 
 
         if (loadedTask.getDateCreated() != null) {
@@ -463,7 +477,7 @@ public class TaskFragment extends BaseMenuFragment {
             deadline.setText(sdf.format(loadedTask.getDeadline()));
         }
 
-        if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+        if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()) {
             setFieldsEnabled(false);
         }
 
@@ -476,17 +490,13 @@ public class TaskFragment extends BaseMenuFragment {
         loadedTask.setNotes(notes.getText().toString());
 
         loadedTask.setAccount(UserManager.getLoggedAccount());
-//        loadedTask.setProject((Project) projectSpinner.getSelectedItem());
-//
 
-        //int & ext importance
         loadedTask.setIntImportance(intImportanceValue);
         loadedTask.setExtImportance(extImportanceValue);
         loadedTask.setCloseness(closenessValue);
         loadedTask.setClearness(clearnessValue);
         loadedTask.setSimplicity(simplicityValue);
         loadedTask.setFlyScore(flyScore);
-//        assignedUserId = assignedUserId.substring(assignedUserId.indexOf("[") + 1, assignedUserId.indexOf("]"));
         if (assignedUser != null) {
             String assignedUserId = getItemId(assignedUser.getSelectedItem());
             if (assignedUserId.length() > 0) {
@@ -518,7 +528,6 @@ public class TaskFragment extends BaseMenuFragment {
 
         loadedTask.setEventId(eventId);
         loadedTask.setTakenAction(actionSpinner.getSelectedItemPosition());
-
 
         try {
             if (!dateCreated.getText().toString().equals("")) {
@@ -601,9 +610,16 @@ public class TaskFragment extends BaseMenuFragment {
         RequestManager.sendRequest(getActivity(), null, taskPostRequest, new Response.Listener<Task>() {
             @Override
             public void onResponse(Task response) {
-
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.content_frame, new TasksFragment()).addToBackStack(null).commit();
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                if (fm.getBackStackEntryCount() > 0) {
+                    Log.i("MainActivity", "popping backstack");
+                    fm.popBackStack();
+                } else {
+                    Log.i("MainActivity", "nothing on backstack, calling super");
+                    getActivity().onBackPressed();
+                }
+//                getActivity().getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.content_frame, new TasksFragment()).addToBackStack(null).commit();
             }
         });
     }
@@ -637,7 +653,7 @@ public class TaskFragment extends BaseMenuFragment {
                         }
 
                         mUsers.addAll(Arrays.asList(response));
-                        Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
                         int position = 0;
                         strings.add(getResources().getString(R.string.no_user));
                         for (Account acc : mUsers) {
@@ -652,7 +668,7 @@ public class TaskFragment extends BaseMenuFragment {
                             if (loadedTask != null) {
                                 assignedUser.setSelection(position);
                                 performUiChangesOnActionChanged(loadedTask.getTakenAction(), assignedUser, null);
-                                if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+                                if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()) {
                                     assignedUser.setEnabled(false);
                                 }
                             }
@@ -689,11 +705,11 @@ public class TaskFragment extends BaseMenuFragment {
                                 position = availableProjects.indexOf(project) + 1;
                             }
                         }
-                        Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
                         if (isFragmentUIActive()) {
                             projectSpinner = setSpinner(R.id.project, strings);
                             projectSpinner.setSelection(position);
-                            if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+                            if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()) {
                                 projectSpinner.setEnabled(false);
                             }
                         }
@@ -728,11 +744,11 @@ public class TaskFragment extends BaseMenuFragment {
                                 position = list.indexOf(task) + 1;
                             }
                         }
-                        Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(context, "Response successful", Toast.LENGTH_SHORT).show();
                         if (isFragmentUIActive()) {
                             dependentTaskSpinner = setSpinner(R.id.dependOn, strings);
                             dependentTaskSpinner.setSelection(position);
-                            if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()){
+                            if (loadedTask.getStatus() == TaskStatus.CLOSED.getIndex()) {
                                 dependentTaskSpinner.setEnabled(false);
                             }
                         }
@@ -745,6 +761,15 @@ public class TaskFragment extends BaseMenuFragment {
         return isAdded() && !isDetached() && !isRemoving();
     }
 
+
+    private void showRecommendedAction(String action) {
+        TextView recommendedAction = (TextView) fragmentView.findViewById(R.id.recommendedAction);
+        recommendedAction.setVisibility(View.VISIBLE);
+        recommendedAction.setVisibility(View.VISIBLE);
+        recommendedAction.setText("pFly recommendation is to " + action.toLowerCase());
+
+    }
+
     private class CheckBoxListener implements View.OnClickListener {
 
         @Override
@@ -753,12 +778,7 @@ public class TaskFragment extends BaseMenuFragment {
             calculateFlyScore();
             TaskAction recommendAction = recommendAction();
             loadedTask.setRecommendedAction(recommendAction.getIndex());
-            TextView recommendedAction = (TextView) fragmentView.findViewById(R.id.recommendedAction);
-            recommendedAction.setVisibility(View.VISIBLE);
-            recommendedAction.setText("pFly recommendation is to " + recommendAction.toString().toLowerCase());
-//            Spinner actionSpinner = (Spinner) fragmentView.findViewById(R.id.actionSpinner);
-//            actionSpinner.setSelection(recommendAction.getIndex());
+            showRecommendedAction(recommendAction.toString());
         }
     }
-
 }

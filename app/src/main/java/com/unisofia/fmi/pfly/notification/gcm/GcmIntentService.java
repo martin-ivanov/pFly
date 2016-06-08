@@ -61,31 +61,48 @@ public class GcmIntentService extends IntentService {
 //				DataManager.getInstance().refreshUserData(this, null);
 //
 //				// Post notification of received message.
-            String type = extras.getString("type", "trade");
-            String title = extras.getString("title", "Work Table");
-            String message = extras.getString("message", "Message was not decoded!");
+            String title = extras.getString("title", "pFly");
+            String message = extras.getString("message", "No description");
             String taskId = extras.getString("taskId");
             String taskActionType = extras.getString("taskActionType");
-            sendNotification(type, taskId, title, message, taskActionType);
+            sendNotification(taskId, title, message, taskActionType);
 //			}
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
-    // Put the message into a notification and post it.
-    private void sendNotification(String type, String taskId, String title, String message, String taskActionType) {
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    private String buildNotificationTitle(String taskName, String taskActionType){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Task \"").append(taskName).append("\" was ");
+        if (taskActionType.equalsIgnoreCase("delegate")){
+            sb.append("delegated");
+        } else {
+            sb.append("transferred");
+        }
+        sb.append(" to you");
+        return sb.toString();
+    }
 
+    private String buildNotificationMessage(String taskId, String message){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Task id: ").append(taskId).append("; ")
+                .append("Description: ").append(message);
+        return sb.toString();
+    }
+
+    // Put the message into a notification and post it.
+    private void sendNotification(String taskId, String taskName, String message, String taskActionType) {
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
-                .setContentTitle(title)
-                .setContentText(message)
+                .setContentTitle(buildNotificationTitle(taskName, taskActionType))
+                .setContentText(buildNotificationMessage(taskId, message))
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setDefaults(Notification.DEFAULT_SOUND)
-                .setAutoCancel(true)
+                .setOngoing(true)
                 .setSmallIcon(R.drawable.pfly_logo);
 
         //Accept intent

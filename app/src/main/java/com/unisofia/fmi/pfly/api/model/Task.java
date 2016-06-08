@@ -294,7 +294,7 @@ public class Task implements Serializable {
 		DELEGATED("DELEGATED", 1),
 		TRANSFERRED("TRANSFERRED", 2),
 		DEFERRED("DEFERRED", 3),
-		CLOSED("CLOSED",4);
+		CLOSED("ARCHIVED",4);
 
 		private static Map<Integer, TaskStatus> map = new HashMap<>();
 		static {

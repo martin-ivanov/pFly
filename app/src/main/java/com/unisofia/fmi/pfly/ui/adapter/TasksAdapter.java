@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.google.gson.Gson;
 import com.unisofia.fmi.pfly.R;
+import com.unisofia.fmi.pfly.account.UserManager;
 import com.unisofia.fmi.pfly.api.ApiConstants;
 import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Task;
@@ -44,6 +45,7 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,25 +66,32 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
         mContext = context;
     }
 
-    public TasksAdapter(final Context context, Long projectId) {
+    public TasksAdapter(final Context context, Long projectId, Boolean getClosedTasks) {
         mTasks = new ArrayList<>();
         mContext = context;
         mSelectedItemsIds = new SparseBooleanArray();
-        fetchTasks(projectId);
+        fetchTasks(projectId, getClosedTasks);
     }
 
-    public void fetchTasks(Long projectId) {
+    public void fetchTasks(Long projectId, Boolean getClosedTasks) {
         StringBuilder sb = new StringBuilder();
-        if (projectId !=null){
+        if (projectId != null && projectId != 0) {
             sb.append(ApiConstants.PROJECT_API_METHOD).append("/").append(projectId);
+        } else {
+            sb.append(ApiConstants.ACCOUNT_API_METHOD).append("/").append(UserManager.getUserId());
         }
         sb.append(ApiConstants.TASK_API_METHOD);
 
+        Map<String, String> params = null;
+        if (getClosedTasks != null) {
+            params = new HashMap<>();
+            params.put("getClosedTasks", getClosedTasks.toString());
+        }
 
         BaseGsonRequest<Task[]> taskGetRequest = new BaseGetRequest<>(
                 mContext,
                 sb.toString(),
-                null,
+                params,
                 Task[].class,
                 new RequestErrorListener(mContext, null)
         );
@@ -97,7 +106,7 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
                         mTasks.clear();
                         mTasks.addAll(Arrays.asList(response));
                         originalTasks = mTasks;
-                        Toast.makeText(mContext, "Response successful", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(mContext, "Response successful", Toast.LENGTH_SHORT).show();
                         notifyDataSetChanged();
                     }
                 });
@@ -152,7 +161,7 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
         Task task = getItem(position);
 
         holder.mTitleTextView.setText(task.getName());
-        if (task.getDescription() != null){
+        if (task.getDescription() != null) {
             holder.mDescriptionTextView.setText(task.getDescription());
         } else {
             holder.mDescriptionTextView.setVisibility(View.GONE);

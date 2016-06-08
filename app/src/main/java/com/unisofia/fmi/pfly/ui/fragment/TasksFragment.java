@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -23,10 +25,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.api.model.Task;
+import com.unisofia.fmi.pfly.ui.adapter.TaskPagerAdapter;
 import com.unisofia.fmi.pfly.ui.adapter.TasksAdapter;
 
 import java.util.ArrayList;
@@ -49,6 +53,7 @@ public class TasksFragment extends BaseMenuFragment {
     private Dialog filterDialog;
     private List<CheckBox> listFilterCriteria;
     private Long projectId;
+    private Boolean getClosedTasks;
 
     @Override
     public void onAttach(Context context) {
@@ -92,7 +97,7 @@ public class TasksFragment extends BaseMenuFragment {
         switch (item.getItemId()) {
             case R.id.refresh_tasks:
                 listFilterCriteria = initFilterDialog(filterDialog);
-                mTasksAdapter.fetchTasks(projectId);
+                mTasksAdapter.fetchTasks(projectId, getClosedTasks);
                 return true;
             case R.id.sort_tasks:
                 sortTasks();
@@ -144,32 +149,32 @@ public class TasksFragment extends BaseMenuFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         fragmentView = view;
+
         Bundle args = this.getArguments();
         if (args != null) {
             Log.d("Marto", args.toString());
             projectId = args.getLong("projectId");
+            Object object = args.get("getClosedTasks");
+            if (object != null){
+                getClosedTasks = Boolean.parseBoolean(object.toString());
+            }
         }
         rootLayout = (CoordinatorLayout) view.findViewById(R.id.rootLayout);
         fabBtn = (FloatingActionButton) view.findViewById(R.id.addTask);
         fabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getFragmentManager().beginTransaction()
+               getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.content_frame, new TaskFragment())
                         .addToBackStack(null)
                         .commit();
             }
         });
 
-//        tasksList = new ArrayList<>();
-//        for (int i = 0; i < 8; i++) {
-//            tasksList.add(new Task());
-//        }
-//
-
-        mTasksAdapter = new TasksAdapter(getActivity(), projectId);
+        mTasksAdapter = new TasksAdapter(getActivity(), projectId, getClosedTasks);
         mTasksListView = (ListView) fragmentView.findViewById(R.id.listview_tasks);
         mTasksListView.setAdapter(mTasksAdapter);
+        mTasksListView.setEmptyView(fragmentView.findViewById(R.id.emptyResults));
         mTasksListView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -238,7 +243,7 @@ public class TasksFragment extends BaseMenuFragment {
     }
 
     private void sortTasks() {
-        Toast.makeText(getActivity(), "Sorting....", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "Sorting....", Toast.LENGTH_SHORT).show();
         List<Task> tasks = mTasksAdapter.getTasks();
         Collections.sort(tasks, new Comparator<Task>() {
             @Override

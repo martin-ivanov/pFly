@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.api.model.Project;
@@ -51,6 +52,7 @@ public class ProjectsFragment extends BaseMenuFragment {
 		mProjectsListView = (ListView) view
 				.findViewById(R.id.listview_projects);
 		mProjectsListView.setAdapter(mProjectsAdapter);
+		mProjectsListView.setEmptyView(view.findViewById(R.id.emptyResults));
 		mProjectsListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override

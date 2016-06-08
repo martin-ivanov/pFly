@@ -26,6 +26,7 @@ import com.unisofia.fmi.pfly.ui.fragment.ProjectsFragment;
 import com.unisofia.fmi.pfly.ui.fragment.ScaleFragment;
 import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
 import com.unisofia.fmi.pfly.ui.fragment.TasksFragment;
+import com.unisofia.fmi.pfly.ui.fragment.ViewPagerFragment;
 
 @SuppressWarnings("deprecation")
 public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSelectedListener,
@@ -52,6 +53,7 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
+        navigationView.setItemIconTintList(null);
         TextView userName = (TextView) headerView.findViewById(R.id.userName);
         userName.setText(UserManager.getLoggedUser());
         TextView userMail = (TextView) headerView.findViewById(R.id.userMail);
@@ -60,13 +62,9 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
         navigationView.setNavigationItemSelectedListener(this);
 
         // Set up initial fragment
-        BaseMenuFragment fragment = new TasksFragment();
+        BaseMenuFragment fragment = new ViewPagerFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_frame, fragment).commit();
-
-        Intent serviceIntent = new Intent();
-//        serviceIntent.setAction("com.unisofia.fmi.pfly.notification.reminder.ReminderService");
-//        startService(new Intent(getApplicationContext(), ReminderService.class));
 
     }
 
@@ -161,14 +159,14 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
         BaseMenuFragment fragment = null;
         switch (item.getItemId()) {
             case R.id.nav_tasks:
-                fragment = new TasksFragment();
+                fragment = new ViewPagerFragment();
                 break;
             case R.id.nav_projects:
                 fragment = new ProjectsFragment();
                 break;
-            case R.id.nav_scale:
-                fragment = new ScaleFragment();
-                break;
+//            case R.id.nav_scale:
+//                fragment = new ScaleFragment();
+//                break;
             case R.id.nav_calendar:
                 Uri.Builder builder = Uri.parse("content://com.android.calendar").buildUpon();
                 builder.appendPath("time");

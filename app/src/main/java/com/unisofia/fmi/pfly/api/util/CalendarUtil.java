@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.unisofia.fmi.pfly.PFlyApp;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
 
@@ -123,7 +124,7 @@ public class CalendarUtil {
         Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        AccountManager am = AccountManager.get(WelcomeActivity.getAppContext());
+        AccountManager am = AccountManager.get(PFlyApp.getAppContext());
         android.accounts.Account[] acc = am.getAccountsByType("com.google");
         android.accounts.Account account = null;
         if (acc.length > 0) {

@@ -4,21 +4,21 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_tasks"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Tasks" />
+            android:icon="@drawable/tasks"
+            android:title="My tasks" />
 
         <item
             android:id="@+id/nav_projects"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/tag"
             android:title="Projects" />
         <item
             android:id="@+id/nav_calendar"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/calendar"
             android:title="Calendar" />
-        <item
-            android:id="@+id/nav_scale"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Scale" />
+        <!--<item-->
+            <!--android:id="@+id/nav_scale"-->
+            <!--android:icon="@drawable/ic_menu_slideshow"-->
+            <!--android:title="Scale" />-->
 
     </group>
 
@@ -26,7 +26,7 @@
         <menu>
             <item
                 android:id="@+id/nav_logout"
-                android:icon="@drawable/ic_menu_send"
+                android:icon="@drawable/logout"
                 android:title="@string/logout" />
         </menu>
     </item>

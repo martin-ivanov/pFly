@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.google.gson.Gson;
+import com.unisofia.fmi.pfly.PFlyApp;
 import com.unisofia.fmi.pfly.api.ApiConstants;
 import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.request.BaseGsonRequest;
@@ -26,7 +27,7 @@ import java.util.Map;
  * Created by martin.ivanov on 2016-06-04.
  */
 public class NotificationActionReceiver extends BroadcastReceiver {
-    Context context = WelcomeActivity.getAppContext();
+    Context context = PFlyApp.getAppContext();
     NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 

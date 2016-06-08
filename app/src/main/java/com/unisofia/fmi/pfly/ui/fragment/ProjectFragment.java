@@ -121,7 +121,7 @@ public class ProjectFragment extends DialogFragment {
         RequestManager.sendRequest(getActivity(), null, projectPostRequest, new Response.Listener<Project>() {
             @Override
             public void onResponse(Project response) {
-                Toast.makeText(getActivity(), "Project saved.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), "Project saved.", Toast.LENGTH_SHORT).show();
                 dismiss();
             }
         });

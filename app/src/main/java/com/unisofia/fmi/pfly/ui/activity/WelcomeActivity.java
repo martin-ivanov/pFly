@@ -2,27 +2,18 @@ package com.unisofia.fmi.pfly.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.plus.Plus;
-import com.google.android.gms.plus.model.people.Person;
 import com.google.gson.Gson;
 import com.unisofia.fmi.pfly.PFlyApp;
 import com.unisofia.fmi.pfly.R;
@@ -43,16 +34,11 @@ public class WelcomeActivity extends BaseActivity {
 
     private static Context mContext;
 
-
-    public static Context getAppContext() {
-        return mContext;
-    }
-
     private GoogleCloudMessaging mGoogleCloudMessaging;
     private String mRegId;
 
     private Button loginButton;
-    private TextView username, emailLabel;
+    private TextView username, email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +49,17 @@ public class WelcomeActivity extends BaseActivity {
         setPrefs();
 
         username = (TextView) findViewById(R.id.username);
-        emailLabel = (TextView) findViewById(R.id.email);
+        email = (TextView) findViewById(R.id.email);
         loginButton = (Button) findViewById(R.id.login);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                registerInBackground();
+                String name = username.getText().toString().trim();
+                String mail = email.getText().toString().trim();
+                if (validateFields(name, mail)){
+                    registerInBackground();
+                }
             }
         });
     }
@@ -80,6 +70,24 @@ public class WelcomeActivity extends BaseActivity {
         if (UserManager.getLoggedUser() != null) {
             showHome();
         }
+    }
+
+    private boolean validateFields(String name, String mail){
+        String msg;
+        if (name.equals("")) {
+            msg = "Name is requered";
+            username.setError(msg);
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (mail.equals("")) {
+            msg = "Email is required";
+            email.setError(msg);
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     private void saveAccountToBackend() {
@@ -123,17 +131,6 @@ public class WelcomeActivity extends BaseActivity {
         PreferenceManager.setDefaultValues(this, R.xml.pref_simplicity, true);
     }
 
-//    private void registerGcmIfNeeded() {
-//        if (GcmUtil.checkPlayServices(this)) {
-//            mGoogleCloudMessaging = GoogleCloudMessaging.getInstance(this);
-//
-//            //Always register on google login
-//            registerInBackground();
-//        } else {
-//            Log.i(GcmConstants.DEBUG_TAG, "No valid Google play APK found");
-//        }
-//    }
-
     private void registerInBackground() {
         new AsyncTask<Void, Void, String>() {
 
@@ -176,7 +173,7 @@ public class WelcomeActivity extends BaseActivity {
     private void getAccountInformation() {
         try {
             String personName = username.getText().toString();
-            String email = emailLabel.getText().toString();
+            String email = this.email.getText().toString();
 
             Account account = new Account();
             account.setName(personName);

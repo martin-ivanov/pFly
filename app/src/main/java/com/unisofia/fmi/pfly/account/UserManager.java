@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.unisofia.fmi.pfly.PFlyApp;
 import com.unisofia.fmi.pfly.api.model.Account;
 import com.unisofia.fmi.pfly.notification.gcm.util.GcmConstants;
 import com.unisofia.fmi.pfly.notification.gcm.util.GcmUtil;
@@ -16,7 +17,7 @@ public class UserManager {
     private static final String KEY_USER_NAME = "KEY_USER_NAME";
     private static final String KEY_USER_EMAIL = "KEY_USER_EMAIL";
 
-    private static Context appContext = WelcomeActivity.getAppContext();
+    private static Context appContext = PFlyApp.getAppContext();
     private static SharedPreferences userPrefs = appContext.getSharedPreferences(USER_PREFS,
             Context.MODE_PRIVATE);
 
@@ -78,7 +79,7 @@ public class UserManager {
     }
 
     public static boolean logoutUser() {
-        SharedPreferences userPrefs = WelcomeActivity.getAppContext().getSharedPreferences(USER_PREFS,
+        SharedPreferences userPrefs = PFlyApp.getAppContext().getSharedPreferences(USER_PREFS,
                 Context.MODE_PRIVATE);
 
         Editor editor = userPrefs.edit();
