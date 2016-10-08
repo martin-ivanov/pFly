@@ -10,6 +10,8 @@ public class Account implements Serializable {
 	private String deviceId;
 	private String email;
 	private String name;
+	private String password;
+	private String token;
 	private String userId;
 	private List<Task> tasks;
 
@@ -56,8 +58,23 @@ public class Account implements Serializable {
 		this.userId = userId;
 	}
 
+	public String getPassword() {
+		return password;
+	}
 
-	//bi-directional many-to-one association to Task
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+//bi-directional many-to-one association to Task
 
 	public List<Task> getTasks() {
 		return this.tasks;

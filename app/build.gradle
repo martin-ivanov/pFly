@@ -38,4 +38,5 @@ dependencies {
     compile 'com.github.rey5137:material:1.2.2'
     compile 'com.android.support:multidex:1.0.0'
     compile 'joda-time:joda-time:2.9.2'
+    compile 'com.andraskindler.parallaxviewpager:parallaxviewpager:0.3.1'
 }

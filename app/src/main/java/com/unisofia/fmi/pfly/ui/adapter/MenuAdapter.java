@@ -9,7 +9,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.unisofia.fmi.pfly.R;
-import com.unisofia.fmi.pfly.ui.fragment.MenuFragment.MenuItem;
 
 public class MenuAdapter extends BaseAdapter {
 
@@ -63,6 +62,25 @@ public class MenuAdapter extends BaseAdapter {
 
 	static class ViewHolder {
 		TextView mTitleTextView;
+	}
+
+	public enum MenuItem {
+
+		PROJECTS(R.string.nav_projects),
+		TASKS(R.string.nav_my_tasks),
+		CALENDAR(R.string.nav_calendar),
+		ADVANCED_SEARCH(R.string.nav_advanced_search),
+		LOGOUT(R.string.nav_logout);
+
+		private int mTitle;
+
+		private MenuItem(int title) {
+			mTitle = title;
+		}
+
+		public int getTitle() {
+			return mTitle;
+		}
 	}
 
 }

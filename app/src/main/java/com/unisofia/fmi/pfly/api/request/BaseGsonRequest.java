@@ -1,23 +1,28 @@
 package com.unisofia.fmi.pfly.api.request;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.Date;
-
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-import com.android.volley.RetryPolicy;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.unisofia.fmi.pfly.account.UserManager;
 import com.unisofia.fmi.pfly.api.util.JsonDateDeserializer;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class BaseGsonRequest<T> extends Request<T> {
+
+    private static final String TOKEN_HEADER = "X-Auth-Token";
 
     private Gson mGson;
     private Listener<T> mListener;
@@ -56,5 +61,19 @@ public abstract class BaseGsonRequest<T> extends Request<T> {
         if (mListener != null) {
             mListener.onResponse(response);
         }
+    }
+
+    @Override
+    public Map<String, String> getHeaders() throws AuthFailureError {
+        Map<String, String> headers = super.getHeaders();
+        if (UserManager.getLoggedAccount() != null) {
+            String token = UserManager.getLoggedAccount().getToken();
+            if (token != null && !token.equals("")) {
+                Map<String, String> authHeaders = new HashMap<>();
+                authHeaders.putAll(headers);
+                authHeaders.put(TOKEN_HEADER, token);
+            }
+        }
+        return headers;
     }
 }

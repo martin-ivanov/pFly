@@ -122,7 +122,7 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        return mTasks.size();
+        return (mTasks != null ) ? mTasks.size(): 0 ;
     }
 
     @Override

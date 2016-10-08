@@ -5,20 +5,25 @@
         <item
             android:id="@+id/nav_tasks"
             android:icon="@drawable/tasks"
-            android:title="My tasks" />
+            android:title="@string/nav_my_tasks" />
 
         <item
             android:id="@+id/nav_projects"
             android:icon="@drawable/tag"
-            android:title="Projects" />
+            android:title="@string/nav_projects" />
         <item
             android:id="@+id/nav_calendar"
             android:icon="@drawable/calendar"
-            android:title="Calendar" />
+            android:title="@string/nav_calendar" />
         <!--<item-->
             <!--android:id="@+id/nav_scale"-->
             <!--android:icon="@drawable/ic_menu_slideshow"-->
             <!--android:title="Scale" />-->
+
+        <item
+        android:id="@+id/nav_advanced_search"
+        android:icon="@drawable/search_white_mobile"
+        android:title="@string/nav_advanced_search" />
 
     </group>
 

@@ -1,6 +1,8 @@
 package com.unisofia.fmi.pfly.api.request;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
@@ -64,5 +66,12 @@ public class RequestManager {
 				activity.hideProgress();
 			}
 		}
+	}
+
+	private boolean isNetworkAvailable(Context context) {
+		ConnectivityManager connectivityManager
+				= (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 }

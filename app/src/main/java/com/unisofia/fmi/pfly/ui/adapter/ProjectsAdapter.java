@@ -73,7 +73,7 @@ public class ProjectsAdapter extends BaseAdapter {
         super();
     }
 
-    public List<Project> getProjecs() {
+    public List<Project> getProjects() {
         return mProjects;
     }
 

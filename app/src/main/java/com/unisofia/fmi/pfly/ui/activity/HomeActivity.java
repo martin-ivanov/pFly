@@ -18,12 +18,9 @@ import com.unisofia.fmi.pfly.R;
 import com.unisofia.fmi.pfly.account.UserManager;
 import com.unisofia.fmi.pfly.api.model.Project;
 import com.unisofia.fmi.pfly.api.model.Task;
-import com.unisofia.fmi.pfly.notification.reminder.ReminderService;
+import com.unisofia.fmi.pfly.ui.fragment.AdvancedSearchFragment;
 import com.unisofia.fmi.pfly.ui.fragment.BaseMenuFragment;
-import com.unisofia.fmi.pfly.ui.fragment.MenuFragment;
-import com.unisofia.fmi.pfly.ui.fragment.MenuFragment.MenuListener;
 import com.unisofia.fmi.pfly.ui.fragment.ProjectsFragment;
-import com.unisofia.fmi.pfly.ui.fragment.ScaleFragment;
 import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
 import com.unisofia.fmi.pfly.ui.fragment.TasksFragment;
 import com.unisofia.fmi.pfly.ui.fragment.ViewPagerFragment;
@@ -35,37 +32,46 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
 
     private DrawerLayout mDrawerLayout;
     private android.support.v7.app.ActionBarDrawerToggle mDrawerToggle;
-    private MenuItem mCurrentitem;
+    private MenuItem mCurrentItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initDrawerLayout();
+        initNavigationView();
+        initPager();
+    }
+
+    private void initDrawerLayout(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new android.support.v7.app.ActionBarDrawerToggle(
                 this, mDrawerLayout, toolbar, R.string.app_name, R.string.app_name);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
+    }
 
+    private void initNavigationView(){
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
         navigationView.setItemIconTintList(null);
+
         TextView userName = (TextView) headerView.findViewById(R.id.userName);
         userName.setText(UserManager.getLoggedUser());
         TextView userMail = (TextView) headerView.findViewById(R.id.userMail);
         userMail.setText(UserManager.getLoggedUserMail());
 
         navigationView.setNavigationItemSelectedListener(this);
+    }
 
-        // Set up initial fragment
-        BaseMenuFragment fragment = new ViewPagerFragment();
+    private void initPager(){
+        ViewPagerFragment fragment = new ViewPagerFragment();
+        fragment.setPagerType(ViewPagerFragment.PagerType.TASK_PAGER);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_frame, fragment).commit();
-
     }
 
     @Override
@@ -132,7 +138,7 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
                 .replace(R.id.content_frame, taskFragment)
                 .addToBackStack(null)
                 .commit();
-        mCurrentitem = null;
+        mCurrentItem = null;
     }
 
     @Override
@@ -146,12 +152,12 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
                 .replace(R.id.content_frame, tasksFragment)
                 .addToBackStack(null)
                 .commit();
-        mCurrentitem = null;
+        mCurrentItem = null;
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        if (mCurrentitem == item) {
+        if (mCurrentItem == item) {
             mDrawerLayout.closeDrawers();
             return false;
         }
@@ -167,12 +173,11 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
 //            case R.id.nav_scale:
 //                fragment = new ScaleFragment();
 //                break;
+            case R.id.nav_advanced_search:
+                fragment = new AdvancedSearchFragment();
+                break;
             case R.id.nav_calendar:
-                Uri.Builder builder = Uri.parse("content://com.android.calendar").buildUpon();
-                builder.appendPath("time");
-                ContentUris.appendId(builder, System.currentTimeMillis());
-                Intent intent = new Intent(Intent.ACTION_VIEW).setData(builder.build());
-                startActivity(intent);
+                startAndroidCalendarApp();
                 break;
 
             case R.id.nav_logout:
@@ -185,10 +190,18 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_frame, fragment).addToBackStack(null).commit();
-            mCurrentitem = item;
+            mCurrentItem = item;
             mDrawerLayout.closeDrawers();
         }
 
         return false;
+    }
+
+    private void startAndroidCalendarApp(){
+        Uri.Builder builder = Uri.parse("content://com.android.calendar").buildUpon();
+        builder.appendPath("time");
+        ContentUris.appendId(builder, System.currentTimeMillis());
+        Intent intent = new Intent(Intent.ACTION_VIEW).setData(builder.build());
+        startActivity(intent);
     }
 }

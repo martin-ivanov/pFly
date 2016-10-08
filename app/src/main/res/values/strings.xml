@@ -10,21 +10,22 @@
     <string name="action_filter">Filter</string>
     <string name="action_delete">Delete</string>
 
-    <!-- Menu -->
-    <string name="menu_projects">Projects</string>
-    <string name="menu_tasks">Tasks</string>
-    <string name="menu_subscribe">Subscribe</string>
-    <string name="menu_logout">Logout</string>
+    <!-- Menu navigation -->
+    <string name="nav_my_tasks">My tasks</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_projects">Projects</string>
+    <string name="nav_advanced_search">Advanced search</string>
+    <string name="nav_logout">Logout</string>
 
     <!-- Tabs -->
     <string name="all_tasks">All tasks</string>
     <string name="archived_tasks">Archived tasks</string>
+    <string name="register">Register</string>
+    <string name="login">Login</string>
 
     <string name="no_projects">No projects</string>
     <string name="no_tasks">No tasks</string>
 
-
-    <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="loginText">Please login with your Google Account</string>
     <string name="ok">OK</string>
@@ -33,6 +34,8 @@
 
     <string name="hint_username">Username</string>
     <string name="hint_mail">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_confirm_password">Confirm password</string>
 
     <!-- Hint while creating task -->
     <string name="hint_name">Name</string>
