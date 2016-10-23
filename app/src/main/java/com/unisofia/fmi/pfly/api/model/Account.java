@@ -6,14 +6,13 @@ import java.util.List;
 
 public class Account implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private Long accountId;
-	private String deviceId;
-	private String email;
-	private String name;
-	private String password;
-	private String token;
-	private String userId;
-	private List<Task> tasks;
+	protected Long accountId;
+	protected String deviceId;
+	protected String email;
+	protected String name;
+
+	protected String userId;
+	protected List<Task> tasks;
 
 	public Account() {
 	}
@@ -56,22 +55,6 @@ public class Account implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
 	}
 
 //bi-directional many-to-one association to Task

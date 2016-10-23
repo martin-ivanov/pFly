@@ -9,7 +9,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.unisofia.fmi.pfly.R;
-import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.usermanagement.User;
+import com.unisofia.fmi.pfly.usermanagement.UserManager;
 import com.unisofia.fmi.pfly.api.model.Account;
 import com.unisofia.fmi.pfly.ui.activity.BaseActivity;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
@@ -86,13 +87,13 @@ public class RegisterFragment extends BaseMenuFragment {
 			String confirmPass = confirmPassword.getText().toString();
 
 			if (validateFields(name, mail, pass, confirmPass)) {
-				Account account = new Account();
-				account.setName(name);
-				account.setPassword(pass);
-				account.setEmail(mail);
+				User user = new User();
+				user.setName(name);
+				user.setPassword(pass);
+				user.setEmail(mail);
 //				UserManager.loginUser(account);
-				UserManager.registerInBackground((BaseActivity) getActivity(), account);
-				UserManager.saveAccount((WelcomeActivity) getActivity(), account);
+				UserManager.registerInBackground((BaseActivity) getActivity(), user);
+				UserManager.saveAccount((WelcomeActivity) getActivity(), user);
 			}
 
 		} catch (Exception e) {

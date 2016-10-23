@@ -1,4 +1,4 @@
-package com.unisofia.fmi.pfly.account;
+package com.unisofia.fmi.pfly.usermanagement;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -39,35 +39,40 @@ public class UserManager {
 
     private static SharedPreferences gcmPrefs = appContext.getSharedPreferences(
             GcmConstants.GCM_PREFS, Context.MODE_PRIVATE);
-    private static Account loggedAccount;
-    private static Long accountId;
+    private static User loggedUser;
+    private static Long userId;
     private static String token;
-    private static String accountName;
-    private static String accountMail;
+    private static String userName;
+    private static String userMail;
     private static String deviceId;
     private static GoogleCloudMessaging mGoogleCloudMessaging;
     private static String mRegId;
 
     static {
-        accountId = userPrefs.getLong(KEY_USER_ID, -1);
-        accountName = userPrefs.getString(KEY_USER_NAME, null);
-        accountMail = userPrefs.getString(KEY_USER_EMAIL, null);
+        userId = userPrefs.getLong(KEY_USER_ID, -1);
+        userName = userPrefs.getString(KEY_USER_NAME, null);
+        userMail = userPrefs.getString(KEY_USER_EMAIL, null);
         token = userPrefs.getString(KEY_USER_TOKEN, null);
         deviceId = GcmUtil.getRegistrationId(appContext);
 
-        if (accountId > -1 && accountMail != null && deviceId != null) {
-            loggedAccount = new Account();
-            loggedAccount.setAccountId(accountId);
-            loggedAccount.setName(accountName);
-            loggedAccount.setEmail(accountMail);
-            loggedAccount.setDeviceId(deviceId);
-            loggedAccount.setToken(token);
+        if (userId > -1 && userMail != null && deviceId != null) {
+            loggedUser = new User();
+            loggedUser.setAccountId(userId);
+            loggedUser.setName(userName);
+            loggedUser.setEmail(userMail);
+            loggedUser.setDeviceId(deviceId);
+            loggedUser.setToken(token);
         }
     }
 
-    public static String getLoggedUser() {
+    public static String getLoggedUserName() {
         return userPrefs.getString(KEY_USER_NAME, null);
     }
+
+    public static User getLoggedUser(){
+        return loggedUser;
+    }
+
 
     public static String getLoggedUserMail() {
         return userPrefs.getString(KEY_USER_EMAIL, null);
@@ -82,11 +87,11 @@ public class UserManager {
         return userPrefs.getLong(KEY_USER_ID, 0);
     }
 
-    public static boolean loginUser(Account profile) {
+    public static boolean loginUser(User profile) {
         if (profile == null) {
             return false;
         }
-        loggedAccount = profile;
+        loggedUser = profile;
         Editor editor = userPrefs.edit();
         if (profile.getAccountId() != null) {
             editor.putLong(KEY_USER_ID, profile.getAccountId());
@@ -116,7 +121,7 @@ public class UserManager {
         gcmEditor.remove(GcmConstants.PROPERTY_REG_ID);
         gcmEditor.commit();
 
-        loggedAccount = null;
+        loggedUser = null;
         return editor.commit();
     }
 
@@ -125,12 +130,18 @@ public class UserManager {
     }
 
     public static Account getLoggedAccount() {
+        //use proxy object to hide fields from subclass object
+        Account loggedAccount = new Account();
+        loggedAccount.setAccountId(loggedUser.getAccountId());
+        loggedAccount.setName(loggedUser.getName());
+        loggedAccount.setUserId(loggedUser.getUserId());
+        loggedAccount.setDeviceId(loggedUser.getDeviceId());
+        loggedAccount.setEmail(loggedUser.getEmail());
+
         return loggedAccount;
     }
 
-
-
-    public static void registerInBackground(final BaseActivity baseActivity, final Account account) {
+    public static void registerInBackground(final BaseActivity baseActivity, final User user) {
         new AsyncTask<Void, Void, String>() {
 
             @Override
@@ -163,20 +174,19 @@ public class UserManager {
             @Override
             protected void onPostExecute(String s) {
                 baseActivity.hideProgress();
-                saveAccount((WelcomeActivity) baseActivity, account);
             }
         }.execute(null, null, null);
     }
 
-    public static void saveAccount(WelcomeActivity context, Account account) {
+    public static void saveAccount(WelcomeActivity context, User account) {
         addAccountToBackend(context, account);
     }
 
-    public static void loginAccountToBackend(final WelcomeActivity context, final Account account) {
+    public static void loginAccountToBackend(final WelcomeActivity context, final User user) {
         Gson gson = new Gson();
-        account.setDeviceId(GcmUtil.getRegistrationId(PFlyApp.getAppContext()));
-        BaseGsonRequest<String> accountPostRequest = new BasePostRequest<String>(context, ApiConstants.NO_AUTH_API_METHOD + "/login",
-                gson.toJson(account), new RequestErrorListener(context, null)) {
+        user.setDeviceId(GcmUtil.getRegistrationId(PFlyApp.getAppContext()));
+        BaseGsonRequest<String> accountPostRequest = new BasePostRequest<String>(context, ApiConstants.AUTH_API_METHOD + "/login",
+                gson.toJson(user), new RequestErrorListener(context, null)) {
             @Override
             protected Map<String, String> getPostParams() {
                 return null;
@@ -193,33 +203,33 @@ public class UserManager {
             public void onResponse(String token) {
                 Toast.makeText(context, "Account saved.", Toast.LENGTH_SHORT).show();
                 Log.d("Response account: ", token);
-                account.setToken(token);
-                UserManager.loginUser(account);
+                user.setToken(token);
+                UserManager.loginUser(user);
                 context.showHome();
             }
         });
     }
 
 
-    public static void addAccountToBackend(final WelcomeActivity context, Account account) {
+    public static void addAccountToBackend(final WelcomeActivity context, User user) {
         Gson gson = new Gson();
-        account.setDeviceId(GcmUtil.getRegistrationId(PFlyApp.getAppContext()));
-        BaseGsonRequest<Account> accountPostRequest = new BasePostRequest<Account>(context, ApiConstants.NO_AUTH_API_METHOD + "/register",
-                gson.toJson(account), new RequestErrorListener(context, null)) {
+        user.setDeviceId(GcmUtil.getRegistrationId(PFlyApp.getAppContext()));
+        BaseGsonRequest<User> accountPostRequest = new BasePostRequest<User>(context, ApiConstants.AUTH_API_METHOD + "/register",
+                gson.toJson(user), new RequestErrorListener(context, null)) {
             @Override
             protected Map<String, String> getPostParams() {
                 return null;
             }
 
             @Override
-            protected Class<Account> getResponseClass() {
-                return Account.class;
+            protected Class<User> getResponseClass() {
+                return User.class;
             }
         };
 
-        RequestManager.sendRequest(context, null, accountPostRequest, new Response.Listener<Account>() {
+        RequestManager.sendRequest(context, null, accountPostRequest, new Response.Listener<User>() {
             @Override
-            public void onResponse(Account response) {
+            public void onResponse(User response) {
                 Toast.makeText(context, "Account saved.", Toast.LENGTH_SHORT).show();
                 Log.d("Response account: ", response.toString());
                 UserManager.loginUser(response);

@@ -25,7 +25,7 @@ import com.google.gson.GsonBuilder;
 import com.rey.material.widget.Slider;
 import com.rey.material.widget.Spinner;
 import com.unisofia.fmi.pfly.R;
-import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.usermanagement.UserManager;
 import com.unisofia.fmi.pfly.api.ApiConstants;
 import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Account;
@@ -37,8 +37,6 @@ import com.unisofia.fmi.pfly.api.request.get.BaseGetRequest;
 import com.unisofia.fmi.pfly.api.request.post.BasePostRequest;
 import com.unisofia.fmi.pfly.api.util.CalendarUtil;
 import com.unisofia.fmi.pfly.api.util.DateSerializer;
-
-import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -511,17 +509,22 @@ public class TaskFragment extends BaseMenuFragment {
                 }
             }
         }
-        String dependentTaskId = getItemId(dependentTaskSpinner.getSelectedItem());
-        if (dependentTaskId.length() > 0) {
-            loadedTask.setDependOn(Long.parseLong(dependentTaskId));
+
+        if (dependentTaskSpinner != null) {
+            String dependentTaskId = getItemId(dependentTaskSpinner.getSelectedItem());
+            if (dependentTaskId.length() > 0) {
+                loadedTask.setDependOn(Long.parseLong(dependentTaskId));
+            }
         }
 
-        String project = getItemId(projectSpinner.getSelectedItem());
-        if (project.length() > 0) {
-            for (Project prj : availableProjects) {
-                if (prj.getProjectId() == Long.parseLong(project)) {
-                    loadedTask.setProject(prj);
-                    break;
+        if (projectSpinner != null) {
+            String project = getItemId(projectSpinner.getSelectedItem());
+            if (project.length() > 0) {
+                for (Project prj : availableProjects) {
+                    if (prj.getProjectId() == Long.parseLong(project)) {
+                        loadedTask.setProject(prj);
+                        break;
+                    }
                 }
             }
         }

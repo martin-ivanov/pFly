@@ -1,13 +1,8 @@
 package com.unisofia.fmi.pfly.ui.adapter;
 
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
-import android.provider.CalendarContract;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +17,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.google.gson.Gson;
 import com.unisofia.fmi.pfly.R;
-import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.usermanagement.UserManager;
 import com.unisofia.fmi.pfly.api.ApiConstants;
 import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Task;
@@ -39,9 +34,6 @@ import com.unisofia.fmi.pfly.ui.filter.ExtImportanceCriteria;
 import com.unisofia.fmi.pfly.ui.filter.IntImportanceCriteria;
 import com.unisofia.fmi.pfly.ui.filter.NameCriteria;
 import com.unisofia.fmi.pfly.ui.filter.SimplicityCriteria;
-import com.unisofia.fmi.pfly.ui.fragment.TaskFragment;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,7 +98,7 @@ public class TasksAdapter extends BaseAdapter implements Filterable {
                         mTasks.clear();
                         mTasks.addAll(Arrays.asList(response));
                         originalTasks = mTasks;
-//                        Toast.makeText(mContext, "Response successful", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Response successful", Toast.LENGTH_SHORT).show();
                         notifyDataSetChanged();
                     }
                 });

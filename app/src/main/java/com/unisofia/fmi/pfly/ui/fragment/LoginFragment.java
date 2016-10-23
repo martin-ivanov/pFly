@@ -9,7 +9,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.unisofia.fmi.pfly.R;
-import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.usermanagement.User;
+import com.unisofia.fmi.pfly.usermanagement.UserManager;
 import com.unisofia.fmi.pfly.api.model.Account;
 import com.unisofia.fmi.pfly.ui.activity.BaseActivity;
 import com.unisofia.fmi.pfly.ui.activity.WelcomeActivity;
@@ -65,13 +66,13 @@ public class LoginFragment extends BaseMenuFragment {
             String pass = password.getText().toString();
 
             if (validateFields(name, pass)) {
-                Account account = new Account();
-                account.setName(name);
-                account.setPassword(pass);
-//            account.setDeviceId(mRegId);
-                UserManager.loginUser(account);
-                UserManager.registerInBackground((BaseActivity) getActivity(), account);
-                UserManager.loginAccountToBackend((WelcomeActivity) getActivity(), account);
+                User user = new User();
+                user.setName(name);
+                user.setPassword(pass);
+//            user.setDeviceId(mRegId);
+                UserManager.loginUser(user);
+                UserManager.registerInBackground((BaseActivity) getActivity(), user);
+                UserManager.loginAccountToBackend((WelcomeActivity) getActivity(), user);
             }
 
         } catch (Exception e) {

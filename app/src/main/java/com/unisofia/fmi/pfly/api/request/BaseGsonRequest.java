@@ -10,7 +10,7 @@ import com.android.volley.Response.Listener;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.usermanagement.UserManager;
 import com.unisofia.fmi.pfly.api.util.JsonDateDeserializer;
 
 import java.io.ByteArrayInputStream;
@@ -66,12 +66,14 @@ public abstract class BaseGsonRequest<T> extends Request<T> {
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
         Map<String, String> headers = super.getHeaders();
-        if (UserManager.getLoggedAccount() != null) {
-            String token = UserManager.getLoggedAccount().getToken();
+
+        if (UserManager.isUserLoggedIn()) {
+            String token = UserManager.getLoggedUser().getToken();
             if (token != null && !token.equals("")) {
                 Map<String, String> authHeaders = new HashMap<>();
                 authHeaders.putAll(headers);
                 authHeaders.put(TOKEN_HEADER, token);
+                headers = authHeaders;
             }
         }
         return headers;

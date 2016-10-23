@@ -10,13 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.unisofia.fmi.pfly.R;
-import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.usermanagement.UserManager;
 import com.unisofia.fmi.pfly.api.ApiConstants;
 import com.unisofia.fmi.pfly.api.RequestManager;
 import com.unisofia.fmi.pfly.api.model.Project;
@@ -24,7 +23,6 @@ import com.unisofia.fmi.pfly.api.request.BaseGsonRequest;
 import com.unisofia.fmi.pfly.api.request.RequestErrorListener;
 import com.unisofia.fmi.pfly.api.request.post.BasePostRequest;
 import com.unisofia.fmi.pfly.api.util.DateSerializer;
-import com.unisofia.fmi.pfly.notification.reminder.RemindersContentProvider;
 
 import java.util.Calendar;
 import java.util.Date;

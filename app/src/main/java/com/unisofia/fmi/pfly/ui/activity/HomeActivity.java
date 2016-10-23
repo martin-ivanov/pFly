@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.unisofia.fmi.pfly.R;
-import com.unisofia.fmi.pfly.account.UserManager;
+import com.unisofia.fmi.pfly.usermanagement.UserManager;
 import com.unisofia.fmi.pfly.api.model.Project;
 import com.unisofia.fmi.pfly.api.model.Task;
 import com.unisofia.fmi.pfly.ui.fragment.AdvancedSearchFragment;
@@ -33,6 +33,7 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
     private DrawerLayout mDrawerLayout;
     private android.support.v7.app.ActionBarDrawerToggle mDrawerToggle;
     private MenuItem mCurrentItem;
+    private ViewPagerFragment viewPagerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,10 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
 
         initDrawerLayout();
         initNavigationView();
-        initPager();
+        initPagerFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, viewPagerFragment).commit();
     }
 
     private void initDrawerLayout(){
@@ -60,18 +64,16 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
         navigationView.setItemIconTintList(null);
 
         TextView userName = (TextView) headerView.findViewById(R.id.userName);
-        userName.setText(UserManager.getLoggedUser());
+        userName.setText(UserManager.getLoggedUserName());
         TextView userMail = (TextView) headerView.findViewById(R.id.userMail);
         userMail.setText(UserManager.getLoggedUserMail());
 
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void initPager(){
-        ViewPagerFragment fragment = new ViewPagerFragment();
-        fragment.setPagerType(ViewPagerFragment.PagerType.TASK_PAGER);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, fragment).commit();
+    private void initPagerFragment(){
+        viewPagerFragment = new ViewPagerFragment();
+        viewPagerFragment.setPagerType(ViewPagerFragment.PagerType.TASK_PAGER);
     }
 
     @Override
@@ -165,7 +167,7 @@ public class HomeActivity extends BaseActivity implements TasksFragment.OnTaskSe
         BaseMenuFragment fragment = null;
         switch (item.getItemId()) {
             case R.id.nav_tasks:
-                fragment = new ViewPagerFragment();
+                fragment = viewPagerFragment;
                 break;
             case R.id.nav_projects:
                 fragment = new ProjectsFragment();
